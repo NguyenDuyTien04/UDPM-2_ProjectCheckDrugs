@@ -1,3 +1,4 @@
+//Đây là file models/Thuoc.js
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 

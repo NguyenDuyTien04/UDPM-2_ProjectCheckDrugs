@@ -1,20 +1,19 @@
-//router/auth.js
+//Đây là file router/auth.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const NguoiDung = require('../models/NguoiDung'); // Model người dùng
 const router = express.Router();
+require('dotenv').config(); // Load biến môi trường từ file .env
 
 // Đăng ký người dùng mới
 router.post('/register', async (req, res) => {
     const { tenDangNhap, email, matKhau, vaiTro } = req.body;
 
     try {
-        // Mã hóa mật khẩu với bcrypt
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(matKhau, saltRounds);
 
-        // Tạo người dùng mới với mật khẩu đã mã hóa
         const nguoiDung = new NguoiDung({
             tenDangNhap,
             email,
@@ -27,6 +26,7 @@ router.post('/register', async (req, res) => {
         await nguoiDung.save();
         res.status(201).json({ message: "Đăng ký thành công", nguoiDung });
     } catch (err) {
+        console.error('Đăng ký lỗi:', err.message);
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng ký." });
     }
 });
@@ -49,8 +49,11 @@ router.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        res.json({ token });
+
+        // Trả về token, vai trò và ID người dùng
+        res.json({ token, vaiTro: nguoiDung.vaiTro, id: nguoiDung._id });
     } catch (err) {
+        console.error('Đăng nhập lỗi:', err.message);
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng nhập." });
     }
 });

@@ -1,4 +1,4 @@
-// backend/models/NguoiDung.js
+// Đây là file models/NguoiDung.js
 const mongoose = require('mongoose');
 
 const nguoiDungSchema = new mongoose.Schema({
