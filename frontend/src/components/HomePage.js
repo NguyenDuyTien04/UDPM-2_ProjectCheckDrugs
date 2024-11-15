@@ -1,11 +1,12 @@
-// HomePage.js
 import React, { useState, useEffect } from 'react';
 import { getMedicineList } from '../utils/api';
-import { Card, Button, Row, Col } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import './css/HomePage.css';
 
 function HomePage() {
   const [medicines, setMedicines] = useState([]);
+  const [visibleMedicines, setVisibleMedicines] = useState(12); // Số lượng thuốc hiển thị
+  const [hasMore, setHasMore] = useState(true); // Kiểm tra xem có thuốc để hiển thị thêm không
 
   useEffect(() => {
     const fetchMedicines = async () => {
@@ -19,36 +20,39 @@ function HomePage() {
     fetchMedicines();
   }, []);
 
-  const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
-  const userId = localStorage.getItem('userId');
+  const handleLoadMore = () => {
+    if (visibleMedicines + 12 <= medicines.length) {
+      setVisibleMedicines(visibleMedicines + 12);
+    } else {
+      setVisibleMedicines(medicines.length);
+      setHasMore(false); // Không còn thuốc để hiển thị thêm
+    }
+  };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Danh sách thuốc</h2>
-      <Row>
-        {medicines.map((medicine) => (
-          <Col key={medicine._id} xs={12} md={4} className="mb-4">
-            <Card className="medicine-card">
-              <Card.Img variant="top" src={medicine.duongDanAnh} className="medicine-image" />
-              <Card.Body>
-                <Card.Title>{medicine.tenThuoc}</Card.Title>
-                <Card.Text>Số lô: {medicine.soLo}</Card.Text>
-                {userRole === 'Admin' ? (
-                  <Button variant="danger">Xóa</Button>
-                ) : userRole === 'Nhà sản xuất' && medicine.nhaSanXuatId === userId ? (
-                  <>
-                    <Button variant="warning" className="mr-2">Sửa</Button>{' '}
-                    <Button variant="danger">Xóa</Button>
-                  </>
-                ) : (
-                  <Button variant="primary">Mua</Button>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
+      <h2 className="text-center mb-4 text-primary">Danh sách thuốc</h2>
+      <div className="medicine-container">
+        {medicines.slice(0, visibleMedicines).map((medicine) => (
+          <div key={medicine._id} className="medicine-card">
+            <div className="medicine-discount">Giảm 50%</div>
+            <img
+              src={medicine.duongDanAnh.startsWith('/uploads/')
+                ? `http://localhost:5000${medicine.duongDanAnh}`
+                : medicine.duongDanAnh}
+              alt="Ảnh thuốc"
+              className="medicine-image"
+            />
+            <div>
+              <div className="medicine-title">{medicine.tenThuoc}</div>
+              <div className="medicine-price">{medicine.gia} đ</div>
+              <div className="medicine-description">Số lô: {medicine.soLo}</div>
+        
+              <Button className="btn">Mua</Button>
+            </div>
+          </div>
         ))}
-      </Row>
+      </div>
     </div>
   );
 }

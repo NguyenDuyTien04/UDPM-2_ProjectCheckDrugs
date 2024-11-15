@@ -3,9 +3,10 @@ const express = require('express');
 const Thuoc = require('../models/Thuoc');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
+const upload = require('../middleware/uploadMiddleware'); // Import cấu hình upload
 
 // Thêm thuốc mới (chỉ cho phép Nhà sản xuất)
-router.post('/add', authMiddleware, async (req, res) => {
+router.post('/add', authMiddleware, upload.single('imageFile'), async (req, res) => {
     const { tenThuoc, soLo, maQR, ngayHetHan, ngaySanXuat, duongDanAnh } = req.body;
 
     try {
@@ -25,6 +26,10 @@ router.post('/add', authMiddleware, async (req, res) => {
             return res.status(400).json({ message: "Thuốc đã tồn tại." });
         }
 
+
+        const duongDanAnhLuu = req.file ? `/uploads/${req.file.filename}` : duongDanAnh;
+
+
         // Tạo mới thuốc
         const thuoc = new Thuoc({
             tenThuoc,
@@ -33,7 +38,7 @@ router.post('/add', authMiddleware, async (req, res) => {
             maQR,
             ngayHetHan,
             ngaySanXuat,
-            duongDanAnh
+            duongDanAnh: duongDanAnhLuu,
         });
 
         const thuocMoi = await thuoc.save();
@@ -44,19 +49,17 @@ router.post('/add', authMiddleware, async (req, res) => {
     }
 });
 
-
 // Lấy danh sách thuốc
 router.get('/list', async (req, res) => {
-    console.log('/list')
     try {
         const danhSachThuoc = await Thuoc.find().populate('nhaSanXuatId', 'tenDangNhap email');
-        console.log("Danh sách thuốc:", danhSachThuoc);
         res.json(danhSachThuoc);
     } catch (err) {
         console.error("Lỗi khi lấy danh sách thuốc:", err.message);
         res.status(500).json({ message: err.message });
     }
 });
+
 
 
 // Tra cứu thuốc bằng mã QR hoặc số lô
@@ -72,7 +75,7 @@ router.get('/search', async (req, res) => {
         }
 
         if (!thuoc) return res.status(404).json({ message: "Không tìm thấy thuốc." });
-        
+
         res.json(thuoc);
     } catch (err) {
         res.status(500).json({ message: err.message });

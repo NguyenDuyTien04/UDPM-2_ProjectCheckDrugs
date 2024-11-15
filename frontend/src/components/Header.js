@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faSignInAlt, faSignOutAlt, faUserPlus, faWallet, faCapsules, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import './css/Header.css';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+
 
 function Header() {
   const navigate = useNavigate();
@@ -80,6 +82,14 @@ function Header() {
                 <Link className="nav-link" to="/admin-panel">
                   <FontAwesomeIcon icon={faUserShield} className="me-1" />
                   Quản Trị
+                </Link>
+              </li>
+            )}
+            {token && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/buy-nft">
+                  <FontAwesomeIcon icon={faShoppingCart} className="me-1" />
+                  Mua NFT
                 </Link>
               </li>
             )}
