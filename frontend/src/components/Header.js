@@ -1,128 +1,67 @@
-// Header.js
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faSignInAlt, faSignOutAlt, faUserPlus, faWallet, faCapsules, faUserShield } from '@fortawesome/free-solid-svg-icons';
-import './css/Header.css';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/Header.css";
 
-
-function Header() {
+const Header = ({ walletAddress, setWalletAddress, isLoggedIn, setIsLoggedIn }) => {
   const navigate = useNavigate();
-  const [walletAddress, setWalletAddress] = useState(null);
-  const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
 
-  // Kết nối với Phantom Wallet
-  useEffect(() => {
-    if (window.solana) {
-      window.solana.on('connect', () => {
-        console.log('Connected to Phantom Wallet');
-      });
-    }
-  }, []);
-
+  // Hàm kết nối ví Phantom
   const connectWallet = async () => {
-    if (window.solana) {
+    if (window.solana && window.solana.isPhantom) {
       try {
-        const resp = await window.solana.connect();
-        setWalletAddress(resp.publicKey.toString());
-        console.log('Connected account:', resp.publicKey.toString());
-        alert('Kết nối ví thành công!');
+        const response = await window.solana.connect();
+        setWalletAddress(response.publicKey.toString());
+        console.log("Kết nối ví thành công:", response.publicKey.toString());
       } catch (err) {
-        console.error('Lỗi khi kết nối ví Phantom:', err.message);
+        console.error("Lỗi kết nối ví:", err.message);
       }
     } else {
-      alert('Bạn cần cài đặt ví Phantom để sử dụng chức năng này.');
+      alert("Vui lòng cài đặt ví Phantom để sử dụng!");
     }
   };
 
+  // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userId');
-    navigate('/');
+    setIsLoggedIn(false);
+    setWalletAddress(null);
+    console.log("Đã đăng xuất.");
+    navigate("/login");
   };
 
   return (
-    <header className="navbar navbar-expand-lg navbar-dark bg-dark custom-header">
-      <div className="container-fluid">
-        {/* Logo và nút kết nối ví */}
-        <div className="d-flex align-items-center">
-          <Link className="navbar-brand" to="/">
-            <FontAwesomeIcon icon={faCapsules} className="me-2" />
-            Ứng Dụng Quản Lý Thuốc
-          </Link>
-        </div>
-
-        {/* Nút điều hướng (trên thiết bị nhỏ) */}
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Menu điều hướng */}
-        <div className="collapse navbar-collapse justify-content-between" id="navbarNav">
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <Link className="nav-link" to="/">
-                <FontAwesomeIcon icon={faHome} className="me-1" />
-                Trang Chủ
-              </Link>
-            </li>
-            {token && userRole === 'Nhà sản xuất' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/add-medicine">
-                  <FontAwesomeIcon icon={faCapsules} className="me-1" />
-                  Thêm Thuốc
-                </Link>
-              </li>
-            )}
-            {token && userRole === 'Admin' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin-panel">
-                  <FontAwesomeIcon icon={faUserShield} className="me-1" />
-                  Quản Trị
-                </Link>
-              </li>
-            )}
-            {token && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/buy-nft">
-                  <FontAwesomeIcon icon={faShoppingCart} className="me-1" />
-                  Mua NFT
-                </Link>
-              </li>
-            )}
-          </ul>
-          <ul className="navbar-nav align-items-center">
-            {!token ? (
-              <>
-                <li className="nav-item me-2">
-                  <Link className="btn btn-outline-light" to="/login">
-                    <FontAwesomeIcon icon={faSignInAlt} className="me-1" />
-                    Đăng Nhập
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="btn btn-outline-light" to="/register">
-                    <FontAwesomeIcon icon={faUserPlus} className="me-1" />
-                    Đăng Kí
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <li className="nav-item">
-                <button className="btn btn-outline-light" onClick={handleLogout}>
-                  <FontAwesomeIcon icon={faSignOutAlt} className="me-1" />
-                  Đăng Xuất
-                </button>
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
+    <header>
+      <h1>Drug Management</h1>
+      <nav>
+        <Link to="/">Trang chủ</Link>
+        {isLoggedIn && (
+          <>
+            <Link to="/drugs/add">Thêm Thuốc</Link>
+            <Link to="/drugs/list">Danh Sách Thuốc</Link>
+            <Link to="/nft/create">Tạo NFT</Link>
+          </>
+        )}
+        {!isLoggedIn ? (
+          <>
+            <Link to="/register">Đăng ký</Link>
+            <Link to="/login">Đăng nhập</Link>
+          </>
+        ) : (
+          <button onClick={handleLogout} className="logout-button">
+            Đăng Xuất
+          </button>
+        )}
+        {!walletAddress ? (
+          <button onClick={connectWallet} className="connect-wallet-button">
+            Kết nối ví
+          </button>
+        ) : (
+          <span className="wallet-display">
+            Ví: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+          </span>
+        )}
+      </nav>
     </header>
   );
-}
+};
 
 export default Header;

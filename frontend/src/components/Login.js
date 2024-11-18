@@ -1,78 +1,93 @@
-import React, { useState } from 'react';
-import { loginUser } from '../utils/api';
-import { useNavigate } from 'react-router-dom';
-import './css/Login.css';  // Import CSS cho giao diện login
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../api/authApi";
+import "../styles/Login.css"; // Import file CSS
 
 function Login() {
-  const [credentials, setCredentials] = useState({ email: '', matKhau: '' });
+  const [walletAddress, setWalletAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false); // Trạng thái xử lý
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCredentials({ ...credentials, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await loginUser(credentials.email, credentials.matKhau);
-      const { token, vaiTro } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', vaiTro);
-      alert('Đăng nhập thành công!');
-      navigate('/');
-    } catch (err) {
-      alert('Đăng nhập thất bại!');
+  // Hàm kết nối ví Phantom
+  const connectWallet = async () => {
+    if (window.solana && window.solana.isPhantom) {
+      try {
+        const response = await window.solana.connect(); // Kết nối ví Phantom
+        setWalletAddress(response.publicKey.toString());
+        console.log("Đã kết nối ví Phantom:", response.publicKey.toString());
+      } catch (err) {
+        console.error("Lỗi kết nối ví:", err.message);
+        setError("Không thể kết nối với ví Phantom. Vui lòng thử lại.");
+      }
+    } else {
+      setError("Vui lòng cài đặt ví Phantom để sử dụng.");
     }
   };
 
-  const handleForgotPassword = () => {
-    navigate('/forgot-password');  // Chuyển hướng tới trang quên mật khẩu
+  // Gọi kết nối ví Phantom khi component mount
+  useEffect(() => {
+    connectWallet();
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      // Đăng nhập nếu thông tin hợp lệ
+      const response = await login({ walletAddress, email });
+      setSuccess("Đăng nhập thành công!");
+      console.log("Thông tin người dùng:", response);
+
+      setTimeout(() => {
+        navigate("/drugs/list"); // Chuyển hướng sang trang Danh sách thuốc
+      }, 1500);
+    } catch (err) {
+      setError("Lỗi đăng nhập: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4 text-primary">Đăng Nhập</h2>
-      <div className="card shadow-lg p-4 rounded">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              value={credentials.email}
-              onChange={handleChange}
-              required
-              placeholder="Nhập email của bạn"
-            />
-          </div>
-          <div className="form-group mt-3">
-            <label>Mật Khẩu</label>
-            <input
-              type="password"
-              name="matKhau"
-              className="form-control"
-              value={credentials.matKhau}
-              onChange={handleChange}
-              required
-              placeholder="Nhập mật khẩu của bạn"
-            />
-          </div>
-          <button type="submit" className="btn btn-primary btn-block mt-4">
-            Đăng Nhập
-          </button>
-        </form>
-        <div className="mt-3">
-          <button 
-            className="btn btn-link" 
-            onClick={handleForgotPassword}
-            style={{ textDecoration: 'none', color: '#007bff' }}
-          >
-            Quên mật khẩu?
-          </button>
+    <div className="login-container">
+      <h2>Đăng Nhập</h2>
+      <form onSubmit={handleLogin} className="login-form">
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
+
+        <div className="form-group">
+          <label htmlFor="walletAddress">Địa chỉ ví Phantom:</label>
+          <input
+            type="text"
+            id="walletAddress"
+            placeholder="Đang kết nối ví..."
+            value={walletAddress}
+            onChange={(e) => setWalletAddress(e.target.value)}
+            required
+            readOnly // Chỉ cho phép đọc khi đã tự động điền
+          />
         </div>
-      </div>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Nhập email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="login-button" disabled={loading || !walletAddress}>
+          {loading ? "Đang xử lý..." : "Đăng Nhập"}
+        </button>
+      </form>
     </div>
   );
 }

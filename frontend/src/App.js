@@ -1,35 +1,81 @@
-// App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Header from './components/Header';
-import HomePage from './components/HomePage';
-import Register from './components/Register';
-import Login from './components/Login';
-import AddMedicine from './components/AddMedicine';
-import Footer from './components/Footer';
-import AdminPanel from './components/AdminPanel';
-import PhantomConnectButton from './components/PhantomConnectButton';
-import BuyNFT from './components/BuyNFT';
-import ForgotPassword from './components/ForgotPassword'; // Import trang quên mật khẩu
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import HomePage from "./components/HomePage";
+import AddDrug from "./components/AddDrug";
+import DrugList from "./components/DrugList";
+import NFTManager from "./components/NFTManager";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import ConnectWalletPage from "./components/ConnectWalletPage";
 
 function App() {
+  const [walletAddress, setWalletAddress] = useState(null); // Phantom wallet address
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
+
+  // Check if Phantom wallet is connected on load
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          const connection = await window.solana.connect({ onlyIfTrusted: true });
+          setWalletAddress(connection.publicKey.toString());
+          console.log("Wallet connected:", connection.publicKey.toString());
+        } catch (error) {
+          console.error("Wallet not connected:", error.message);
+        }
+      }
+    };
+    checkWalletConnection();
+  }, []);
+
   return (
     <Router>
-      <Header />
-      <main className="container mt-4">
+      <Header
+        walletAddress={walletAddress}
+        setWalletAddress={setWalletAddress}
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+      />
       <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/add-medicine" element={<AddMedicine />} />
-          <Route path="/admin-panel" element={<AdminPanel />} />
-          <Route path="/buy-nft" element={<BuyNFT />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Đường dẫn cho quên mật khẩu */}
-        </Routes>
-      </main>
+        {!walletAddress ? (
+          // Show Connect Wallet Page if wallet is not connected
+          <Route path="*" element={<ConnectWalletPage />} />
+        ) : isLoggedIn ? (
+          // Show authenticated routes if logged in
+          <>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/drugs/add" element={<AddDrug />} />
+            <Route path="/drugs/list" element={<DrugList />} />
+            <Route path="/nft/create" element={<NFTManager />} />
+          </>
+        ) : (
+          // Show login/register routes if wallet is connected but not logged in
+          <>
+            <Route
+              path="/register"
+              element={
+                <Register
+                  setIsLoggedIn={setIsLoggedIn}
+                  walletAddress={walletAddress}
+                />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <Login
+                  setIsLoggedIn={setIsLoggedIn}
+                  setWalletAddress={setWalletAddress}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </>
+        )}
+      </Routes>
       <Footer />
-      <PhantomConnectButton />
     </Router>
   );
 }

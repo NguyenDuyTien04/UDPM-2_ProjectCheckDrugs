@@ -1,52 +1,105 @@
-// Register.js (Registration Form)
-import React, { useState } from 'react';
-import { registerUser } from '../utils/api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "../styles/Register.css";
 
 function Register() {
-  const [userData, setUserData] = useState({ tenDangNhap: '', email: '', matKhau: '', vaiTro: 'Người tiêu dùng' });
+  const [email, setEmail] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
+  const [role, setRole] = useState("user");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
+  // Hàm kiểm tra và kết nối ví Phantom
+  const checkAndConnectWallet = async () => {
+    if (window.solana && window.solana.isPhantom) {
+      try {
+        // Kiểm tra xem ví đã kết nối trước đó chưa
+        const connection = await window.solana.connect({ onlyIfTrusted: true });
+        setWalletAddress(connection.publicKey.toString());
+        console.log("Ví Phantom đã được kết nối:", connection.publicKey.toString());
+      } catch (err) {
+        console.error("Lỗi khi kiểm tra hoặc kết nối ví:", err.message);
+        setWalletAddress("");
+      }
+    } else {
+      setError("Vui lòng cài đặt ví Phantom để sử dụng chức năng này.");
+    }
   };
 
-  const handleSubmit = async (e) => {
+  // Gọi hàm kiểm tra ví khi component được render
+  useEffect(() => {
+    checkAndConnectWallet();
+  }, []);
+
+  // Hàm xử lý đăng ký
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     try {
-      await registerUser(userData);
-      alert('Đăng kí thành công!');
-      navigate('/login');
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, walletAddress, role }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Đăng ký thất bại!");
+      }
+
+      setSuccess("Đăng ký thành công!");
+      console.log("Phản hồi từ server:", data);
+
+      setTimeout(() => navigate("/login"), 2000); // Chuyển hướng về trang đăng nhập
     } catch (err) {
-      alert('Đăng kí thất bại!');
+      console.error("Lỗi đăng ký:", err.message);
+      setError(err.message || "Đăng ký thất bại!");
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4">Đăng Kí</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="register-container">
+      <h2>Đăng Ký</h2>
+      <form onSubmit={handleRegister}>
+        {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
+
         <div className="form-group">
-          <label>Tên Đăng Nhập</label>
-          <input type="text" name="tenDangNhap" className="form-control" value={userData.tenDangNhap} onChange={handleChange} required />
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Nhập email của bạn"
+            required
+          />
         </div>
-        <div className="form-group mt-3">
-          <label>Email</label>
-          <input type="email" name="email" className="form-control" value={userData.email} onChange={handleChange} required />
+
+        <div className="form-group">
+          <label>Địa chỉ ví Phantom:</label>
+          <input
+            type="text"
+            value={walletAddress || "Đang kiểm tra..."}
+            readOnly
+            style={{ color: walletAddress ? "#000" : "red" }}
+          />
         </div>
-        <div className="form-group mt-3">
-          <label>Mật Khẩu</label>
-          <input type="password" name="matKhau" className="form-control" value={userData.matKhau} onChange={handleChange} required />
-        </div>
-        <div className="form-group mt-3">
-          <label>Vai Trò</label>
-          <select name="vaiTro" className="form-control" value={userData.vaiTro} onChange={handleChange}>
-            <option value="Khách hàng">Người tiêu dùng</option>
-            <option value="Nhà sản xuất">Nhà sản xuất</option>
+
+        <div className="form-group">
+          <label>Vai trò:</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)} required>
+            <option value="user">Người dùng</option>
+            <option value="consumer">Người tiêu dùng</option>
+            <option value="manufacturer">Nhà sản xuất</option>
           </select>
         </div>
-        <button type="submit" className="btn btn-primary mt-4">Đăng Kí</button>
+
+        <button type="submit" disabled={!walletAddress}>
+          Đăng Ký
+        </button>
       </form>
     </div>
   );
