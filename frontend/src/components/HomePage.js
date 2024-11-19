@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getMedicineList } from '../utils/api';
-import { Card, Button, Row, Col, Modal } from 'react-bootstrap';
-import QrScanner from 'react-qr-scanner';
+import { Button } from 'react-bootstrap';
+import QrScanner from 'react-qr-scanner'; // Import đúng thư viện
 import './css/HomePage.css';
 
 function HomePage() {
   const [medicines, setMedicines] = useState([]);
-  const [qrData, setQrData] = useState(null); // Thêm trạng thái cho dữ liệu quét QR
-  const [showScanner, setShowScanner] = useState(false); // Trạng thái hiển thị quét QR
+  const [visibleMedicines, setVisibleMedicines] = useState(12); // Số lượng thuốc hiển thị
+  const [hasMore, setHasMore] = useState(true); // Kiểm tra xem có thuốc để hiển thị thêm không
+  const [showScanner, setShowScanner] = useState(false); // Điều khiển hiển thị giao diện quét QR
+  const [scannedMedicine, setScannedMedicine] = useState(null); // Lưu thuốc được quét
 
   useEffect(() => {
     const fetchMedicines = async () => {
@@ -30,70 +32,92 @@ function HomePage() {
     }
   };
 
-  const handleScan = (result) => {
-    if (result) {
-      console.log('Dữ liệu từ QR:', result.text); // In kết quả quét QR ra console
-      setQrData(result.text); // Lưu dữ liệu quét được từ mã QR
-      setShowScanner(false);  // Đóng màn hình quét sau khi quét xong
+  const handleScan = (data) => {
+    if (data) {
+      const foundMedicine = medicines.find(
+        (medicine) => medicine.maQR === data.text
+      );
+      setScannedMedicine(foundMedicine || 'Không tìm thấy thuốc');
+      setShowScanner(false); // Tắt giao diện quét
     }
   };
 
-  const handleError = (error) => {
-    console.error('Lỗi QR:', error);
+  const handleError = (err) => {
+    console.error('Lỗi khi quét QR:', err);
   };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Danh sách thuốc</h2>
-      <Button variant="primary" onClick={() => setShowScanner(true)} className="mb-4">
-        Quét mã QR
-      </Button>
+      <h2 className="text-center mb-4 text-primary">Danh sách thuốc</h2>
 
-      {/* Hiển thị Modal chứa trình quét QR */}
-      <Modal show={showScanner} onHide={() => setShowScanner(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Quét mã QR</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      {/* Giao diện quét QR */}
+      {showScanner && (
+        <div className="qr-scanner">
           <QrScanner
             delay={300}
             onError={handleError}
             onScan={handleScan}
             style={{ width: '100%' }}
           />
-        </Modal.Body>
-      </Modal>
-
-      <Row>
-        {medicines.map((medicine) => (
-          <Col key={medicine._id} xs={12} md={4} className="mb-4">
-            <Card className="medicine-card">
-              <Card.Img variant="top" src={medicine.duongDanAnh} className="medicine-image" />
-              <Card.Body>
-                <Card.Title>{medicine.tenThuoc}</Card.Title>
-                <Card.Text>Số lô: {medicine.soLo}</Card.Text>
-                {userRole === 'Admin' ? (
-                  <Button variant="danger">Xóa</Button>
-                ) : userRole === 'Nhà sản xuất' && medicine.nhaSanXuatId === userId ? (
-                  <>
-                    <Button variant="warning" className="mr-2">Sửa</Button>{' '}
-                    <Button variant="danger">Xóa</Button>
-                  </>
-                ) : (
-                  <Button variant="primary">Mua</Button>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-
-      {qrData && (
-        <div className="qr-data">
-          <h5>Dữ liệu từ QR:</h5>
-          <p>{qrData}</p>
+          <Button onClick={() => setShowScanner(false)} className="btn btn-danger mt-3">
+            Đóng
+          </Button>
         </div>
       )}
+
+      {/* Hiển thị kết quả quét */}
+      {scannedMedicine && (
+        <div className="alert alert-success mt-3">
+          <h5>Kết quả quét:</h5>
+          {scannedMedicine === 'Không tìm thấy thuốc' ? (
+            <p>{scannedMedicine}</p>
+          ) : (
+            <div>
+              <p>Tên thuốc: {scannedMedicine.tenThuoc}</p>
+              <p>Giá: {scannedMedicine.gia} đ</p>
+              <p>Số lô: {scannedMedicine.soLo}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Danh sách thuốc */}
+      <div className="medicine-container">
+        {medicines.slice(0, visibleMedicines).map((medicine) => (
+          <div key={medicine._id} className="medicine-card">
+            <div className="medicine-discount">Giảm 50%</div>
+            <img
+              src={medicine.duongDanAnh.startsWith('/uploads/')
+                ? `http://localhost:5000${medicine.duongDanAnh}`
+                : medicine.duongDanAnh}
+              alt="Ảnh thuốc"
+              className="medicine-image"
+            />
+            <div>
+              
+              <div className="medicine-title">{medicine.tenThuoc}</div>
+              <div className="medicine-price">{medicine.gia} đ</div>
+              <div className="medicine-description">Số lô: {medicine.soLo}</div>
+              <Button className="btn">Mua</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {hasMore && (
+        <div className="text-center mt-4">
+          <Button onClick={handleLoadMore} className="btn btn-primary">
+            Xem thêm
+          </Button>
+        </div>
+      )}
+
+      {/* Nút kích hoạt giao diện quét mã QR */}
+      <div className="text-center mt-4">
+        <Button onClick={() => setShowScanner(true)} className="btn btn-secondary">
+          Quét mã QR
+        </Button>
+      </div>
     </div>
   );
 }
