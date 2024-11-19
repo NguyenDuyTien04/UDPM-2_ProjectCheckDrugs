@@ -42,7 +42,7 @@ function Register() {
         <div className="form-group mt-3">
           <label>Vai Trò</label>
           <select name="vaiTro" className="form-control" value={userData.vaiTro} onChange={handleChange}>
-            <option value="Người tiêu dùng">Người tiêu dùng</option>
+            <option value="Khách hàng">Người tiêu dùng</option>
             <option value="Nhà sản xuất">Nhà sản xuất</option>
           </select>
         </div>

@@ -21,9 +21,14 @@ function HomePage() {
     fetchMedicines();
   }, []);
 
-  const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
-  const userId = localStorage.getItem('userId');
+  const handleLoadMore = () => {
+    if (visibleMedicines + 12 <= medicines.length) {
+      setVisibleMedicines(visibleMedicines + 12);
+    } else {
+      setVisibleMedicines(medicines.length);
+      setHasMore(false); // Không còn thuốc để hiển thị thêm
+    }
+  };
 
   const handleScan = (result) => {
     if (result) {

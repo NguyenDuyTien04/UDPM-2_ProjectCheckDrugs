@@ -6,8 +6,6 @@ import reportWebVitals from './reportWebVitals';
 // src/index.js hoặc src/App.js
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

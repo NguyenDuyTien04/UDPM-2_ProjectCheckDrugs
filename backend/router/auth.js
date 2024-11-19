@@ -2,13 +2,14 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const NguoiDung = require('../models/NguoiDung'); // Model người dùng
 const router = express.Router();
 require('dotenv').config(); // Load biến môi trường từ file .env
 
 // Đăng ký người dùng mới
 router.post('/register', async (req, res) => {
-    const { tenDangNhap, email, matKhau, vaiTro } = req.body;
+    const { tenDangNhap, email, matKhau, vaiTro, walletAddress } = req.body;
 
     try {
         const saltRounds = 10;
@@ -24,6 +25,27 @@ router.post('/register', async (req, res) => {
         });
 
         await nguoiDung.save();
+
+        // Mint NFT cho nhà sản xuất hoặc người mua
+        if (vaiTro === 'Nhà sản xuất' || vaiTro === 'Người mua') {
+            try {
+                const response = await axios.post('https://api.gameshift.dev/nx/nft/create', {
+                    referenceId: nguoiDung._id.toString(),
+                    type: vaiTro === 'Nhà sản xuất' ? 'manufacturer' : 'buyer',
+                    walletAddress
+                }, {
+                    headers: {
+                        accept: 'application/json',
+                        'x-api-key': process.env.GAMESHIFT_API_KEY
+                    }
+                });
+
+                console.log('Mint NFT thành công:', response.data);
+            } catch (error) {
+                console.error('Mint NFT thất bại:', error.response ? error.response.data : error.message);
+            }
+        }
+
         res.status(201).json({ message: "Đăng ký thành công", nguoiDung });
     } catch (err) {
         console.error('Đăng ký lỗi:', err.message);
@@ -57,5 +79,24 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: "Đã xảy ra lỗi trong quá trình đăng nhập." });
     }
 });
+
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+      const user = await NguoiDung.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "Email không tồn tại." });
+      }
+  
+      // Giả lập gửi email với OTP
+      const otp = '123456'; // Fake OTP
+      console.log(`Gửi OTP: ${otp} đến email: ${email}`);
+      res.status(200).json({ message: 'OTP đã được gửi qua email' });
+  
+    } catch (err) {
+      res.status(500).json({ message: "Có lỗi xảy ra." });
+    }
+  });
+  
 
 module.exports = router;
