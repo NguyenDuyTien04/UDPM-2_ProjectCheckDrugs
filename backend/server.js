@@ -5,11 +5,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const drugRoutes = require('./routes/drugRoutes');
 const nftRoutes = require('./routes/nftRoutes');
+const collectionRoutes = require('./routes/collectionRouter');
 
 // Kết nối MongoDB
 mongoose
@@ -22,10 +24,12 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+// Cung cấp tệp tĩnh cho thư mục 'uploads'
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/drugs', drugRoutes);
 app.use('/api/nft', nftRoutes);
-
+app.use('/api/collections', collectionRoutes);
 // Kiểm tra sức khỏe của server
 app.get('/health', (req, res) => {
   res.status(200).json({ message: 'API đang hoạt động bình thường!' });
