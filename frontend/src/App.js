@@ -1,82 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import HomePage from "./components/HomePage";
-import AddDrug from "./components/AddDrug";
-import DrugList from "./components/DrugList";
-import NFTManager from "./components/NFTManager";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import ConnectWalletPage from "./components/ConnectWalletPage";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import DrugsList from "./pages/DrugsList";
+import AddDrug from "./pages/AddDrug";
+import MarketNFT from "./pages/MarketNFT";
+import PurchaseHistory from "./pages/PurchaseHistory";
 
 function App() {
-  const [walletAddress, setWalletAddress] = useState(null); // Phantom wallet address
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Login state
-
-  // Check if Phantom wallet is connected on load
-  useEffect(() => {
-    const checkWalletConnection = async () => {
-      if (window.solana && window.solana.isPhantom) {
-        try {
-          const connection = await window.solana.connect({ onlyIfTrusted: true });
-          setWalletAddress(connection.publicKey.toString());
-          console.log("Wallet connected:", connection.publicKey.toString());
-        } catch (error) {
-          console.error("Wallet not connected:", error.message);
-        }
-      }
-    };
-    checkWalletConnection();
-  }, []);
-
   return (
-    <Router>
-      <Header
-        walletAddress={walletAddress}
-        setWalletAddress={setWalletAddress}
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-      />
+    <UserProvider>
+      <Navbar />
       <Routes>
-        {!walletAddress ? (
-          // Show Connect Wallet Page if wallet is not connected
-          <Route path="*" element={<ConnectWalletPage />} />
-        ) : isLoggedIn ? (
-          // Show authenticated routes if logged in
-          <>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/drugs/add" element={<AddDrug />} />
-            <Route path="/drugs/list" element={<DrugList />} />
-            <Route path="/nft/create" element={<NFTManager />} />
-          </>
-        ) : (
-          // Show login/register routes if wallet is connected but not logged in
-          <>
-            <Route
-              path="/register"
-              element={
-                <Register
-                  setIsLoggedIn={setIsLoggedIn}
-                  walletAddress={walletAddress}
-                />
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <Login
-                  setIsLoggedIn={setIsLoggedIn}
-                  setWalletAddress={setWalletAddress}
-                />
-              }
-            />
-            <Route path="*" element={<Navigate to="/login" />} />
-          </>
-        )}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/drugs-list" element={<DrugsList />} />
+        <Route path="/add-drug" element={<AddDrug />} />
+        <Route path="/market-nft" element={<MarketNFT />} />
+        <Route path="/purchase-history" element={<PurchaseHistory />} />
       </Routes>
-      <Footer />
-    </Router>
+    </UserProvider>
   );
 }
 

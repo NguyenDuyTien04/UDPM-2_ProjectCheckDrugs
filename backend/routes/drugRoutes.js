@@ -1,4 +1,5 @@
-//drugRouter
+// routes/drugRouter.js
+
 const express = require('express');
 const authMiddleware = require('../middleware/authMiddleware');
 const drugController = require('../controllers/drugController');

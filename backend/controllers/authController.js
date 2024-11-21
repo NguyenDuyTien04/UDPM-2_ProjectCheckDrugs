@@ -3,50 +3,61 @@ const jwt = require('jsonwebtoken');
 const gameShiftService = require('../services/gameShiftService');
 
 exports.register = async (req, res) => {
-  const { email, walletAddress, referenceId } = req.body;
+  const { email, walletAddress, role } = req.body;
 
   try {
+    // Kiểm tra role hợp lệ
+    if (!['consumer', 'manufacturer', 'admin'].includes(role)) {
+      return res.status(400).json({ message: 'Vai trò không hợp lệ.' });
+    }
+
     // Kiểm tra ví đã được đăng ký chưa
     const existingUser = await User.findOne({ walletAddress });
     if (existingUser) {
-      return res.status(400).json({ message: "Ví này đã được đăng ký." });
+      return res.status(400).json({ message: 'Địa chỉ ví này đã được đăng ký.' });
     }
 
-    // Gọi API GameShift để kiểm tra/đăng ký user trên GameShift
-    const gameShiftUser = await gameShiftService.createGameShiftUser({
-      email,
-      walletAddress,
-      referenceId,
-    });
+    // Chuẩn bị payload gửi đến GameShift
+    const payload = {
+      referenceId: walletAddress,
+      email: email,
+      externalWalletAddress: walletAddress,
+    };
 
-    if (!gameShiftUser || !gameShiftUser.id) {
-      return res
-        .status(400)
-        .json({ message: "Lỗi khi tạo tài khoản trên GameShift. Không nhận được ID hợp lệ." });
+    console.log('Payload gửi đến GameShift:', payload);
+
+    // Gọi API GameShift để đăng ký người dùng
+    const gameShiftUser = await gameShiftService.createGameShiftUser(payload);
+
+    if (!gameShiftUser || !gameShiftUser.referenceId) {
+      return res.status(400).json({ message: 'Không nhận được referenceId hợp lệ từ GameShift.' });
     }
 
-    // Lưu thông tin người dùng vào MongoDB
+    console.log('Phản hồi từ GameShift:', gameShiftUser);
+
+    // Lưu người dùng vào MongoDB
     const newUser = new User({
       email,
       walletAddress,
-      referenceId,
-      gameShiftUserId: gameShiftUser.id,
+      referenceId: gameShiftUser.referenceId,
+      role,
     });
 
     await newUser.save();
+    console.log('Người dùng đã được lưu:', newUser);
 
-    res.status(201).json({ message: "Đăng ký thành công!", user: newUser });
+    res.status(201).json({ message: 'Đăng ký thành công!', user: newUser });
   } catch (error) {
-    console.error("Lỗi khi đăng ký người dùng:", error.message);
+    console.error('Lỗi khi đăng ký người dùng:', error.message);
 
-    // Xử lý lỗi unique (lỗi MongoDB)
+    // Xử lý lỗi unique (MongoDB)
     if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ message: "Email hoặc Địa chỉ ví đã được sử dụng. Vui lòng thử lại." });
+      return res.status(400).json({
+        message: 'Email hoặc Địa chỉ ví đã tồn tại trong hệ thống.',
+      });
     }
 
-    res.status(500).json({ message: "Lỗi khi đăng ký người dùng.", error: error.message });
+    res.status(500).json({ message: 'Đăng ký thất bại.', error: error.message });
   }
 };
 
@@ -54,54 +65,53 @@ exports.login = async (req, res) => {
   const { walletAddress, email } = req.body;
 
   try {
-    console.log('Dữ liệu nhận từ client:', { walletAddress, email });
+    console.log('Payload nhận từ client:', { walletAddress, email });
 
-    // Kiểm tra người dùng trong MongoDB
-    const user = await User.findOne({ walletAddress, email });
+    // Tìm người dùng trong MongoDB
+    let user = await User.findOne({ walletAddress, email });
+
+    // Nếu không tìm thấy, thử lấy thông tin từ GameShift
     if (!user) {
-      console.log('Không tìm thấy người dùng trong MongoDB.');
-      return res.status(404).json({ message: "Người dùng không tồn tại." });
-    }
-    console.log('Thông tin người dùng từ MongoDB:', user);
+      const gameShiftUser = await gameShiftService.fetchUserFromGameShift(walletAddress);
 
-    // Lấy thông tin từ GameShift API
-    const gameShiftUser = await gameShiftService.fetchGameShiftUser(user.referenceId);
-    console.log('Thông tin từ GameShift:', gameShiftUser);
+      if (!gameShiftUser || gameShiftUser.email !== email) {
+        return res.status(404).json({ message: 'Người dùng không tồn tại trên GameShift.' });
+      }
 
-    // Kiểm tra thông tin từ GameShift
-    if (
-      !gameShiftUser ||
-      gameShiftUser.referenceId !== user.referenceId ||
-      gameShiftUser.email !== user.email
-    ) {
-      console.log('Dữ liệu từ GameShift không khớp hoặc không tồn tại.');
-      return res
-        .status(400)
-        .json({ message: "Người dùng chưa được đăng ký trên GameShift." });
+      console.log('Người dùng từ GameShift:', gameShiftUser);
+
+      // Lưu người dùng mới vào MongoDB
+      user = new User({
+        email: gameShiftUser.email,
+        walletAddress: gameShiftUser.referenceId,
+        referenceId: gameShiftUser.referenceId,
+        role: 'consumer', // Mặc định là consumer
+      });
+
+      await user.save();
+      console.log('Người dùng được thêm vào MongoDB:', user);
     }
 
     // Tạo JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, walletAddress: user.walletAddress },
+      { id: user._id, email: user.email, walletAddress: user.walletAddress, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: '1h' }
     );
+
     console.log('JWT token:', token);
 
-    // Trả về kết quả
-    return res.status(200).json({
-      message: "Đăng nhập thành công!",
+    res.status(200).json({
+      message: 'Đăng nhập thành công!',
       user: {
         email: user.email,
         walletAddress: user.walletAddress,
         role: user.role,
       },
-      token, // Trả token về client
+      token,
     });
   } catch (error) {
-    console.error("Lỗi khi đăng nhập:", error.message);
-    return res.status(500).json({ message: "Lỗi khi đăng nhập.", error: error.message });
+    console.error('Lỗi khi đăng nhập:', error.message);
+    res.status(500).json({ message: 'Đăng nhập thất bại.', error: error.message });
   }
 };
-
-

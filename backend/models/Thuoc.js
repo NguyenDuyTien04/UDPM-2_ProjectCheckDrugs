@@ -1,3 +1,5 @@
+// models/Thuoc.js
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -8,7 +10,7 @@ const thuocSchema = new Schema({
   maQR: { type: String, required: true, unique: true },
   ngayHetHan: { type: Date, required: true },
   ngaySanXuat: { type: Date, required: true },
-  gia: { type: Number, required: true }, // Thêm thuộc tính giá (SOL)
+  gia: { type: Number, required: true }, // Giá thuốc (SOL)
   duongDanAnh: { type: String, required: true },
 });
 
