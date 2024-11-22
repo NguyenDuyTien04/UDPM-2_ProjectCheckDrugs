@@ -9,9 +9,9 @@ const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const drugRoutes = require('./routes/drugRoutes');
-const nftRoutes = require('./routes/nftRoutes');
 const collectionRoutes = require('./routes/collectionRouter');
+const nftRoutes = require('./routes/nftRoutes');
+
 // Kết nối MongoDB
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -26,7 +26,6 @@ app.use(express.json());
 // Cung cấp tệp tĩnh cho thư mục 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
-app.use('/api/drugs', drugRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use("/api/nft", nftRoutes);
 // Kiểm tra sức khỏe của server

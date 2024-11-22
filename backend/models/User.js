@@ -8,13 +8,13 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Email là bắt buộc.'],
       unique: true,
       match: [/.+\@.+\..+/, 'Email không hợp lệ.'],
-      set: (v) => v.toLowerCase(), // Lưu email dưới dạng chữ thường
+       // Lưu email dưới dạng chữ thường
     },
     walletAddress: {
       type: String,
       required: [true, 'Địa chỉ ví là bắt buộc.'],
       unique: true,
-      set: (v) => v.toLowerCase(), // Lưu địa chỉ ví dưới dạng chữ thường
+       // Lưu địa chỉ ví dưới dạng chữ thường
     },
     referenceId: {
       type: String,

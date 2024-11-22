@@ -12,19 +12,63 @@ export const register = async (userData) => {
     return response.data;
 };
 
-export const getDrugs = async () => {
-    const response = await axios.get(`${API_BASE_URL}/drugs`);
-    return response.data;
+export const fetchCollections = async (token) => {
+  const response = await axios.get(`${API_BASE_URL}/collections/list`, {
+    headers: { "Authorization": `Bearer ${token}` },
+  });
+  return response.data;
 };
 
-export const addDrug = async (formData) => {
-    const response = await axios.post(`${API_BASE_URL}/drugs/add`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+export const createCollection = async (token, data) => {
+  const response = await axios.post(`${API_BASE_URL}/collections/create`, data, {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Tạo Certificate NFT
+export const createCertificateNFT = async (data, token) => {
+    const response = await axios.post(`${API_BASE_URL}/nft/certificate/create`, data, {
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
-};
-
-export const getNFTs = async () => {
-    const response = await axios.get(`${API_BASE_URL}/nfts`);
+  };
+  
+  // Tạo Medicine NFT
+  export const createMedicineNFT = async (data, token) => {
+    const response = await axios.post(`${API_BASE_URL}/nft/medicine/create`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     return response.data;
-};
+  };
+  
+  // Lấy danh sách NFT
+  export const fetchNFTs = async (token) => {
+    const response = await axios.get(`${API_BASE_URL}/nft/list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+  
+  // Lấy chi tiết NFT
+  export const fetchNFTById = async (id, token) => {
+    const response = await axios.get(`${API_BASE_URL}/nft/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+  
+  // Rao bán NFT
+  export const sellNFT = async (id, price, token) => {
+    const response = await axios.put(
+      `${API_BASE_URL}/nft/sell/${id}`,
+      { price },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data;
+  };

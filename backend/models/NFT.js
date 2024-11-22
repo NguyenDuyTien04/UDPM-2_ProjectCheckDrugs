@@ -1,46 +1,51 @@
 const mongoose = require("mongoose");
 
 const nftSchema = new mongoose.Schema(
-  {
-    name: { 
-      type: String, 
-      required: true // Tên NFT (bắt buộc)
-    },
-    description: { 
-      type: String // Mô tả về NFT
-    },
-    image: { 
-      type: String, 
-      validate: {
-        validator: function (v) {
-          return /^https?:\/\/.+/.test(v); // Kiểm tra URL hợp lệ
+    {
+        name: {
+            type: String,
+            required: true // Tên của NFT
         },
-        message: (props) => `${props.value} không phải là một URL hợp lệ!`,
-      },
+        description: {
+            type: String,
+            required: true // Mô tả của NFT
+        },
+        imageUrl: {
+            type: String,
+            required: true // URL hình ảnh của NFT
+        },
+        collectionId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Collection", // Liên kết với Collection
+            required: true
+        },
+        gameShiftAssetId: {
+            type: String,
+            unique: true,
+            required: true // ID của NFT trên GameShift
+        },
+        price: {
+            type: Number,
+            required: true // Giá của NFT
+        },
+        ownerWallet: {
+            type: String,
+            required: true // Địa chỉ ví của người sở hữu NFT
+        },
+        isActive: {
+            type: Boolean,
+            default: true // Trạng thái hoạt động
+        },
+        forSale: { type: Boolean, default: false }, // Đánh dấu NFT đang được rao bán
+        type: {
+            type: String,
+            enum: ['certificate', 'medicine'], // 'certificate' (giấy chứng nhận), 'medicine' (sản phẩm thuốc)
+            required: true,
+          },
     },
-    ownerWallet: { 
-      type: String, 
-      required: true, // Ví của người sở hữu NFT
-      index: true 
-    },
-    collectionId: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: "Collection", // Tham chiếu tới Collection
-      required: true 
-    },
-    gameShiftAssetId: { 
-      type: String, 
-      unique: true, 
-      required: true // ID NFT từ GameShift
-    },
-    isActive: { 
-      type: Boolean, 
-      default: true // Trạng thái hoạt động
+    {
+        timestamps: true // Tự động thêm `createdAt` và `updatedAt`
     }
-  },
-  { 
-    timestamps: true // Tự động thêm ngày tạo và cập nhật
-  }
 );
 
 module.exports = mongoose.model("NFT", nftSchema);

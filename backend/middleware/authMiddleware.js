@@ -18,9 +18,14 @@ const authMiddleware = (req, res, next) => {
 
     // Gán thông tin người dùng đã giải mã vào req.user để sử dụng trong các route tiếp theo
     req.user = decoded;
+
+    // Log token và địa chỉ ví sau khi xác minh thành công
+    console.log('Token hợp lệ:', token);
+    console.log('Địa chỉ ví của user:', req.user.walletAddress);
+
     next();
   } catch (error) {
-    console.error('JWT verification error:', error);
+    console.error('JWT verification error:', error.message);
     res.status(400).json({ message: 'Invalid token.' });
   }
 };

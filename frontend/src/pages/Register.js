@@ -64,6 +64,7 @@ function Register() {
           onChange={(e) => setRole(e.target.value)}
           required
         >
+          <option value="admin">admin</option>
           <option value="consumer">Người tiêu dùng</option>
           <option value="manufacturer">Nhà sản xuất</option>
         </select>

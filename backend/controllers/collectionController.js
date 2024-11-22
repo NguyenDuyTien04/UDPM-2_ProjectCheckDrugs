@@ -50,3 +50,15 @@ exports.createCollection = async (req, res) => {
   }
 };
 
+exports.getCollections = async (req, res) => {
+  try {
+    const collections = await Collection.find({ ownerWallet: req.user.walletAddress }); // Lọc theo ví của người dùng hiện tại
+    res.status(200).json({
+      message: 'Danh sách bộ sưu tập:',
+      data: collections,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách bộ sưu tập:', error.message);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách bộ sưu tập.', error: error.message });
+  }
+};

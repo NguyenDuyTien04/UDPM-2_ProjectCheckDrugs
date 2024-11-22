@@ -5,10 +5,10 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import DrugsList from "./pages/DrugsList";
-import AddDrug from "./pages/AddDrug";
 import MarketNFT from "./pages/MarketNFT";
 import PurchaseHistory from "./pages/PurchaseHistory";
+import Collection from "./pages/Collection";
+import CreateNFT from "./pages/CreateNFT";
 
 function App() {
   return (
@@ -18,9 +18,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/drugs-list" element={<DrugsList />} />
-        <Route path="/add-drug" element={<AddDrug />} />
-        <Route path="/market-nft" element={<MarketNFT />} />
+        <Route path="/collections" element={<Collection />} />
+        <Route path="/nft/create" element={<CreateNFT />} />
+        <Route path="/nft/market" element={<MarketNFT />} />
         <Route path="/purchase-history" element={<PurchaseHistory />} />
       </Routes>
     </UserProvider>

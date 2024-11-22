@@ -14,4 +14,7 @@ router.post(
   collectionController.createCollection
 );
 
+// Route: Lấy danh sách bộ sưu tập của user
+router.get('/list', authMiddleware, collectionController.getCollections);
+
 module.exports = router;
