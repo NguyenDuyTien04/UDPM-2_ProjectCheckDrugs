@@ -10,11 +10,21 @@ function Navbar() {
     <nav className="navbar">
       <h1>Drug Detection System</h1>
       <ul>
-        <li><Link to="/">Trang chủ</Link></li>
-        <li><Link to="/drugs-list">Danh sách thuốc</Link></li>
-        <li><Link to="/add-drug">Thêm thuốc</Link></li>
-        <li><Link to="/market-nft">Market NFT</Link></li>
-        <li><Link to="/purchase-history">Lịch sử mua bán</Link></li>
+      <li>
+          <Link to="/">Trang chủ</Link>
+        </li>
+        <li>
+          <Link to="/collections">Bộ sưu tập</Link>
+        </li>
+        <li>
+          <Link to="/create-nft">Tạo NFT</Link>
+        </li>
+        <li>
+          <Link to="/market">Market</Link>
+        </li>
+        <li>
+          <Link to="/purchase-history">Lịch sử giao dịch</Link>
+        </li>
         {user ? (
           <>
             <li>{user.walletAddress.slice(0, 5)}...</li>

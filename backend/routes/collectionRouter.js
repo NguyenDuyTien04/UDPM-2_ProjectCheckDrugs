@@ -9,9 +9,8 @@ const router = express.Router();
 // Route tạo Collection (hỗ trợ cả URL ảnh và file upload)
 router.post(
   "/create",
-  authMiddleware, 
-  upload.single("image"), // Hỗ trợ upload file với key "image"
-  collectionController.createCollection
+  authMiddleware, // Middleware xác thực người dùng
+  collectionController.createCollection // Xử lý logic trong controller
 );
 
 // Route: Lấy danh sách bộ sưu tập của user
