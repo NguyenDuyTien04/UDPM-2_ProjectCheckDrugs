@@ -35,5 +35,6 @@ router.get("/collection/:collectionId", authMiddleware, nftController.getNFTsByC
 
 // Route để mua NFT
 router.put("/purchase/:nftId", authMiddleware, nftController.purchaseNFT);
+
 module.exports = router;
 

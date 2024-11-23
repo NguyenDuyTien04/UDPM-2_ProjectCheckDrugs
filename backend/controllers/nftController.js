@@ -1,6 +1,6 @@
 const Collection = require("../models/Collection");
 const NFT = require("../models/NFT");
-const gameShiftService = require("../services/gameShiftService");
+const gameShiftService = require("../services/gameshiftService");
 // Lấy tất cả
 exports.getAllNFTs = async (req, res) => {
   try {
@@ -295,39 +295,35 @@ exports.getNFTsByCollection = async (req, res) => {
   }
 };
 exports.purchaseNFT = async (req, res) => {
-  const { nftId } = req.params;
-  const { buyerWallet, gameShiftTransactionId } = req.body;
+  const { nftId, transactionId } = req.body;
 
   try {
-    // Kiểm tra NFT tồn tại và đang được rao bán
+    if (!nftId || !transactionId) {
+      return res.status(400).json({ message: "Thiếu thông tin bắt buộc: nftId hoặc transactionId." });
+    }
+
+    // Lấy thông tin NFT từ database
     const nft = await NFT.findById(nftId);
     if (!nft) {
-      return res.status(404).json({ message: "NFT không tồn tại." });
-    }
-    if (!nft.forSale) {
-      return res.status(400).json({ message: "NFT này không khả dụng để mua." });
+      return res.status(404).json({ message: "Không tìm thấy NFT." });
     }
 
-    // Gọi GameShift API để xác minh giao dịch
-    const isValidTransaction = await gameShiftService.verifyGameShiftTransaction(
-      gameShiftTransactionId,
-      nft.gameShiftAssetId,
-      nft.price,
-      nft.currency,
-      buyerWallet
-    );
+    // Gọi GameShift để xác minh giao dịch
+    const verifyResult = await gameShiftService.verifyTransaction(transactionId, req.user.walletAddress);
 
-    if (!isValidTransaction) {
-      return res.status(400).json({ message: "Giao dịch không hợp lệ từ GameShift." });
+    if (!verifyResult || !verifyResult.success) {
+      return res.status(400).json({ message: "Xác minh giao dịch thất bại.", error: verifyResult });
     }
 
-    // Cập nhật NFT: chuyển quyền sở hữu
-    nft.ownerWallet = buyerWallet;
-    nft.forSale = false;
-    nft.transactionId = gameShiftTransactionId; // Lưu ID giao dịch từ GameShift
+    // Cập nhật trạng thái NFT
+    nft.forSale = false; // NFT không còn rao bán
+    nft.ownerWallet = req.user.walletAddress; // Chuyển quyền sở hữu cho người mua
     await nft.save();
 
-    res.status(200).json({ message: "Mua NFT thành công!", data: nft });
+    res.status(200).json({
+      message: "Mua NFT thành công!",
+      data: nft,
+    });
   } catch (error) {
     console.error("Lỗi khi xử lý mua NFT:", error.message);
     res.status(500).json({ message: "Lỗi khi xử lý mua NFT.", error: error.message });

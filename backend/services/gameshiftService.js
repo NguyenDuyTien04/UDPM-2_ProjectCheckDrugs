@@ -202,46 +202,33 @@ exports.sellNFT = async ({ assetId, price }) => {
     }
   }
 };
-exports.verifyGameShiftTransaction = async (
-  transactionId,
-  gameShiftAssetId,
-  expectedPrice,
-  currency,
-  buyerWallet
-) => {
+exports.verifyTransaction = async (transactionId, walletAddress) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/transactions/verify`, // Endpoint của GameShift
+      `${BASE_URL}/transactions/verify`,
       {
         transactionId,
-        assetId: gameShiftAssetId,
-        price: expectedPrice,
-        currency,
-        buyerWallet,
+        walletAddress,
       },
       {
         headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
+          'x-api-key': API_KEY,
+          'Content-Type': 'application/json',
         },
       }
     );
 
-    // Kiểm tra trạng thái từ GameShift
-    if (response.data.status === "success") {
-      console.log("Giao dịch hợp lệ trên GameShift:", response.data);
-      return true;
-    }
-
-    console.error("Giao dịch không hợp lệ từ GameShift:", response.data);
-    return false;
+    return response.data;
   } catch (error) {
     if (error.response) {
       console.error("Lỗi từ GameShift API:", error.response.data);
       throw new Error(`GameShift Error: ${error.response.data.message || error.message}`);
+    } else if (error.request) {
+      console.error("Không nhận được phản hồi từ GameShift API:", error.request);
+      throw new Error("Không nhận được phản hồi từ GameShift API.");
     } else {
-      console.error("Lỗi kết nối với GameShift API:", error.message);
-      throw new Error("Không thể kết nối tới GameShift API.");
+      console.error("Lỗi khi gọi GameShift API:", error.message);
+      throw new Error(`GameShift Error: ${error.message}`);
     }
   }
 };
