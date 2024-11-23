@@ -41,7 +41,13 @@ const nftSchema = new mongoose.Schema(
             type: String,
             enum: ['certificate', 'medicine'], // 'certificate' (giấy chứng nhận), 'medicine' (sản phẩm thuốc)
             required: true,
-          },
+        },
+        currency: {
+            type: String,
+            enum: ["SOL", "USDC"],
+            required: true,
+            default: "SOL", // Mặc định là SOL
+        },
     },
     {
         timestamps: true // Tự động thêm `createdAt` và `updatedAt`

@@ -19,9 +19,18 @@ router.get('/certificate/list', authMiddleware, nftController.getCertificateNFTs
 // Lấy danh sách NFT loại Medicine
 router.get('/medicine/list', authMiddleware, nftController.getMedicineNFTs);
 
+// Route để lấy danh sách NFT trên Market
+router.get("/market", nftController.getMarketNFTs);
+
 // Lấy thông tin chi tiết NFT
 router.get('/:id', authMiddleware, nftController.getNFTById);
 
 // Rao bán NFT
 router.put('/sell/:id', authMiddleware, nftController.sellNFT);
+
+
+// router lấy danh sách nft dựa vào Collection
+router.get("/collection/:collectionId", authMiddleware, nftController.getNFTsByCollection)
+
 module.exports = router;
+

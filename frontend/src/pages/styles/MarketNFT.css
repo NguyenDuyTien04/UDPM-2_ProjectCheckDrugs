@@ -1,102 +1,72 @@
 .market-nft {
-    padding: 20px;
-    text-align: center;
-    background-color: #f9f9f9;
-  }
-  
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-  
-  .nft-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-  }
-  
-  .nft-card {
-    position: relative;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-  }
-  
-  .nft-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .discount-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #ff4d4d;
-    color: white;
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 1;
-  }
-  
-  .nft-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .nft-info {
-    padding: 15px;
-    text-align: left;
-  }
-  
-  .nft-name {
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .nft-description {
-    font-size: 0.9rem;
-    color: #666;
-    margin-bottom: 10px;
-  }
-  
-  .nft-price {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1rem;
-    margin-bottom: 10px;
-  }
-  
-  .old-price {
-    text-decoration: line-through;
-    color: #999;
-  }
-  
-  .current-price {
-    color: #ff4d4d;
-    font-weight: bold;
-  }
-  
-  .select-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s;
-  }
-  
-  .select-button:hover {
-    background-color: #0056b3;
-  }
-  
+  padding: 20px;
+}
+
+.market-section {
+  margin-bottom: 40px;
+}
+
+.market-section h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.market-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.market-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.market-card:hover {
+  transform: translateY(-5px);
+}
+
+.market-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.market-card h4 {
+  font-size: 1.2rem;
+  margin: 10px 0;
+  color: #444;
+}
+
+.market-card p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.btn-buy {
+  margin-top: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-buy:hover {
+  background-color: #0056b3;
+}
+
+hr {
+  border: none;
+  border-top: 2px solid #ddd;
+  margin: 30px 0;
+}

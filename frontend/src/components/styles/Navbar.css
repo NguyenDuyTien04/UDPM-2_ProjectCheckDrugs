@@ -1,62 +1,96 @@
+/* Tổng quan Navbar */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #152435;
-    color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #000; /* Nền đen */
+  color: #fff; /* Chữ trắng */
+  padding: 15px 30px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  position: sticky; /* Navbar cố định khi cuộn */
+  top: 0;
+  z-index: 1000;
+}
+
+/* Tên thương hiệu */
+.navbar h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #ffa500; /* Màu vàng cam */
+  margin: 0;
+}
+
+/* Danh sách liên kết */
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 20px; /* Khoảng cách giữa các liên kết */
+  margin: 0;
+  padding: 0;
+}
+
+.navbar ul li {
+  text-align: center;
+}
+
+/* Liên kết */
+.navbar ul li a {
+  text-decoration: none;
+  color: #fff; /* Màu chữ trắng */
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.navbar ul li a:hover {
+  background-color: #ffa500; /* Nền cam khi hover */
+  color: #000; /* Chữ đen khi hover */
+}
+
+/* Nút Đăng xuất */
+.navbar ul li button {
+  background-color: #ff4d4d; /* Nền đỏ */
+  color: #fff; /* Chữ trắng */
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.navbar ul li button:hover {
+  background-color: #ff1a1a; /* Nền đỏ đậm hơn khi hover */
+}
+
+/* Khi hiển thị địa chỉ ví */
+.navbar ul li span {
+  font-weight: bold;
+  color: #00ff7f; /* Màu xanh lá */
+  font-size: 1rem;
+}
+
+/* Đối với màn hình nhỏ */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  .navbar h1 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
+
   .navbar ul {
-    list-style: none;
-    display: flex;
-    gap: 15px;
-    margin: 0;
-    padding: 0;
+    flex-direction: column;
+    gap: 10px;
   }
-  
-  .navbar ul li {
-    font-size: 16px;
-  }
-  
+
   .navbar ul li a {
-    text-decoration: none;
-    color: white;
+    font-size: 0.9rem;
   }
-  
+
   .navbar ul li button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    font-size: 0.9rem;
   }
-  
-  .navbar ul li button:hover {
-    background-color: #c82333;
-  }
-  
-  .wallet-display {
-    font-weight: bold;
-    font-size: 14px;
-    margin-right: 10px;
-  }
-  .logout-btn {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .logout-btn:hover {
-    background-color: #e43d3d;
-  }
+}

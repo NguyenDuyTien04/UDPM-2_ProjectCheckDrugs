@@ -181,7 +181,7 @@ exports.sellNFT = async ({ assetId, price }) => {
         headers: {
           'x-api-key': API_KEY,
           'Content-Type': 'application/json',
-          Accept: 'application/json',
+          'Accept': 'application/json',
         },
       }
     );

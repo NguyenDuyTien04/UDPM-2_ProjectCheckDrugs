@@ -209,53 +209,88 @@ exports.getNFTById = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy thông tin NFT.', error: error.message });
   }
 };
-// Bán NFT
+// API để rao bán NFT
 exports.sellNFT = async (req, res) => {
-  const { id } = req.params; // Lấy ID NFT từ URL
-  const { price } = req.body; // Lấy giá bán từ request body
-  const walletAddress = req.user.walletAddress; // Lấy địa chỉ ví của người dùng từ authMiddleware
+  const { id } = req.params;
+  const { price, currency } = req.body; // Lấy giá và loại tiền từ request body
+  const walletAddress = req.user.walletAddress;
 
   try {
-    // Kiểm tra nếu thiếu thông tin giá bán
     if (!price || price <= 0) {
-      return res.status(400).json({ message: 'Giá bán phải lớn hơn 0.' });
+      return res.status(400).json({ message: "Giá bán phải lớn hơn 0." });
+    }
+    if (!currency || !["SOL", "USDC"].includes(currency)) {
+      return res.status(400).json({ message: "Loại tiền không hợp lệ." });
     }
 
-    // Tìm NFT trong MongoDB
     const nft = await NFT.findById(id);
-
-    // Kiểm tra nếu không tìm thấy NFT
     if (!nft) {
-      return res.status(404).json({ message: 'NFT không tồn tại.' });
+      return res.status(404).json({ message: "NFT không tồn tại." });
     }
-
-    // Kiểm tra nếu người dùng không phải chủ sở hữu NFT
     if (nft.ownerWallet !== walletAddress) {
-      return res.status(403).json({ message: 'Bạn không phải chủ sở hữu của NFT này.' });
+      return res.status(403).json({ message: "Bạn không phải chủ sở hữu NFT này." });
     }
 
-    // Gọi API GameShift để rao bán NFT
-    const gameShiftResponse = await gameShiftService.sellNFT({
-      assetId: nft.gameShiftAssetId, // ID của NFT trên GameShift
-      price,
-    });
-
-    console.log('Phản hồi từ GameShift khi rao bán NFT:', gameShiftResponse);
-
-    // Cập nhật trạng thái rao bán của NFT trong MongoDB
-    nft.isActive = true;
-    nft.price = price;
     nft.forSale = true;
-
-    // Lưu NFT vào MongoDB
+    nft.price = price;
+    nft.currency = currency; // Lưu loại tiền
     await nft.save();
 
+    res.status(200).json({ message: "NFT đã được rao bán thành công!", data: nft });
+  } catch (error) {
+    console.error("Lỗi khi rao bán NFT:", error.message);
+    res.status(500).json({ message: "Lỗi khi rao bán NFT.", error: error.message });
+  }
+};
+
+
+// API để lấy NFT trên Market
+exports.getMarketNFTs = async (req, res) => {
+  try {
+    const { type } = req.query; // Lấy loại NFT từ query (certificate hoặc medicine)
+
+    let filter = { forSale: true }; // Lọc các NFT đang được rao bán
+    if (type) {
+      filter.type = type; // Nếu có loại NFT, thêm vào bộ lọc
+    }
+
+    const nfts = await NFT.find(filter); // Tìm NFT theo bộ lọc
+
+    if (!nfts || nfts.length === 0) {
+      return res.status(404).json({ message: "Không có NFT nào trên chợ." });
+    }
+
     res.status(200).json({
-      message: 'NFT đã được rao bán thành công!',
-      data: nft,
+      message: `Danh sách NFT đang rao bán (${type || "tất cả"}):`,
+      data: nfts,
     });
   } catch (error) {
-    console.error('Lỗi khi rao bán NFT:', error.message);
-    res.status(500).json({ message: 'Lỗi khi rao bán NFT.', error: error.message });
+    console.error("Lỗi khi lấy NFT trên chợ:", error.message);
+    res.status(500).json({ message: "Lỗi khi lấy NFT trên chợ.", error: error.message });
+  }
+};
+// Lấy NFT trong bộ sưu tập
+exports.getNFTsByCollection = async (req, res) => {
+  try {
+    const { collectionId } = req.params; // Lấy collectionId từ URL
+
+    if (!collectionId) {
+      return res.status(400).json({ message: "Thiếu ID bộ sưu tập." });
+    }
+
+    // Tìm tất cả các NFT thuộc về bộ sưu tập này
+    const nfts = await NFT.find({ collectionId });
+
+    if (!nfts || nfts.length === 0) {
+      return res.status(404).json({ message: "Không có NFT nào trong bộ sưu tập này." });
+    }
+
+    res.status(200).json({
+      message: `Danh sách NFT trong bộ sưu tập ${collectionId}:`,
+      data: nfts,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy NFT từ bộ sưu tập:", error.message);
+    res.status(500).json({ message: "Lỗi khi lấy NFT từ bộ sưu tập.", error: error.message });
   }
 };

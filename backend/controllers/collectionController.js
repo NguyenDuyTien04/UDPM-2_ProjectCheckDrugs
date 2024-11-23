@@ -62,3 +62,4 @@ exports.getCollections = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách bộ sưu tập.', error: error.message });
   }
 };
+
