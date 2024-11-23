@@ -294,3 +294,42 @@ exports.getNFTsByCollection = async (req, res) => {
     res.status(500).json({ message: "Lỗi khi lấy NFT từ bộ sưu tập.", error: error.message });
   }
 };
+exports.purchaseNFT = async (req, res) => {
+  const { nftId } = req.params;
+  const { buyerWallet, gameShiftTransactionId } = req.body;
+
+  try {
+    // Kiểm tra NFT tồn tại và đang được rao bán
+    const nft = await NFT.findById(nftId);
+    if (!nft) {
+      return res.status(404).json({ message: "NFT không tồn tại." });
+    }
+    if (!nft.forSale) {
+      return res.status(400).json({ message: "NFT này không khả dụng để mua." });
+    }
+
+    // Gọi GameShift API để xác minh giao dịch
+    const isValidTransaction = await gameShiftService.verifyGameShiftTransaction(
+      gameShiftTransactionId,
+      nft.gameShiftAssetId,
+      nft.price,
+      nft.currency,
+      buyerWallet
+    );
+
+    if (!isValidTransaction) {
+      return res.status(400).json({ message: "Giao dịch không hợp lệ từ GameShift." });
+    }
+
+    // Cập nhật NFT: chuyển quyền sở hữu
+    nft.ownerWallet = buyerWallet;
+    nft.forSale = false;
+    nft.transactionId = gameShiftTransactionId; // Lưu ID giao dịch từ GameShift
+    await nft.save();
+
+    res.status(200).json({ message: "Mua NFT thành công!", data: nft });
+  } catch (error) {
+    console.error("Lỗi khi xử lý mua NFT:", error.message);
+    res.status(500).json({ message: "Lỗi khi xử lý mua NFT.", error: error.message });
+  }
+};

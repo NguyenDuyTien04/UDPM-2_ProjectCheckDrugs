@@ -46,8 +46,9 @@ const nftSchema = new mongoose.Schema(
             type: String,
             enum: ["SOL", "USDC"],
             required: true,
-            default: "SOL", // Mặc định là SOL
+            default: "USDC", // Mặc định là USDC
         },
+        transactionId: { type: String }, // Lưu ID giao dịch từ GameShift
     },
     {
         timestamps: true // Tự động thêm `createdAt` và `updatedAt`

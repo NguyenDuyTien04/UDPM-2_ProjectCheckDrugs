@@ -202,3 +202,46 @@ exports.sellNFT = async ({ assetId, price }) => {
     }
   }
 };
+exports.verifyGameShiftTransaction = async (
+  transactionId,
+  gameShiftAssetId,
+  expectedPrice,
+  currency,
+  buyerWallet
+) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/transactions/verify`, // Endpoint của GameShift
+      {
+        transactionId,
+        assetId: gameShiftAssetId,
+        price: expectedPrice,
+        currency,
+        buyerWallet,
+      },
+      {
+        headers: {
+          "x-api-key": API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Kiểm tra trạng thái từ GameShift
+    if (response.data.status === "success") {
+      console.log("Giao dịch hợp lệ trên GameShift:", response.data);
+      return true;
+    }
+
+    console.error("Giao dịch không hợp lệ từ GameShift:", response.data);
+    return false;
+  } catch (error) {
+    if (error.response) {
+      console.error("Lỗi từ GameShift API:", error.response.data);
+      throw new Error(`GameShift Error: ${error.response.data.message || error.message}`);
+    } else {
+      console.error("Lỗi kết nối với GameShift API:", error.message);
+      throw new Error("Không thể kết nối tới GameShift API.");
+    }
+  }
+};

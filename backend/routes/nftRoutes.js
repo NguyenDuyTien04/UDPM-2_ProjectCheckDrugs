@@ -32,5 +32,8 @@ router.put('/sell/:id', authMiddleware, nftController.sellNFT);
 // router lấy danh sách nft dựa vào Collection
 router.get("/collection/:collectionId", authMiddleware, nftController.getNFTsByCollection)
 
+
+// Route để mua NFT
+router.put("/purchase/:nftId", authMiddleware, nftController.purchaseNFT);
 module.exports = router;
 
