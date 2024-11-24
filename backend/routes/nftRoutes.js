@@ -1,40 +1,26 @@
 const express = require('express');
+const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const nftController = require('../controllers/nftController');
 
-const router = express.Router();
+// Tạo NFT mới
+router.post('/create', authMiddleware, nftController.createNFT);
 
-// Tạo NFT loại Certificate
-router.post('/certificate/create', authMiddleware, nftController.createCertificateNFT);
-
-// Tạo NFT loại Medicine
-router.post('/medicine/create', authMiddleware, nftController.createMedicineNFT);
-
-// Lấy danh sách tất cả NFT
-router.get('/list', authMiddleware, nftController.getAllNFTs);
-
-// Lấy danh sách NFT loại Certificate
-router.get('/certificate/list', authMiddleware, nftController.getCertificateNFTs);
-
-// Lấy danh sách NFT loại Medicine
-router.get('/medicine/list', authMiddleware, nftController.getMedicineNFTs);
-
-// Route để lấy danh sách NFT trên Market
-router.get("/market", nftController.getMarketNFTs);
-
-// Lấy thông tin chi tiết NFT
-router.get('/:id', authMiddleware, nftController.getNFTById);
+// Lấy tất cả NFT (chỉ trả về ID từ MongoDB)
+router.get('/', authMiddleware, nftController.getAllNFTs);
 
 // Rao bán NFT
-router.put('/sell/:id', authMiddleware, nftController.sellNFT);
+router.post('/sell/:id', authMiddleware, nftController.sellNFT);
 
+// Hủy NFT  
+router.post('/cancel/:id', authMiddleware, nftController.cancelNFTListing);
 
-// router lấy danh sách nft dựa vào Collection
-router.get("/collection/:collectionId", authMiddleware, nftController.getNFTsByCollection)
+// Mua NFT
+router.post('/buy/:id', authMiddleware, nftController.buyNFT);
 
+// Lấy tất cả NFT từ GameShift và lưu ID vào MongoDB (nếu chưa tồn tại)
+router.get('/gameshift/list', authMiddleware, nftController.getAllNFTsFromGameShift);
 
-// Route để mua NFT
-router.put("/purchase/:nftId", authMiddleware, nftController.purchaseNFT);
-
+// API để lấy danh sách NFT đang được rao bán
+router.get('/for-sale', nftController.getNFTsForSale);
 module.exports = router;
-

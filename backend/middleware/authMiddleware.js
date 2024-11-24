@@ -1,27 +1,23 @@
-// middleware/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  // Lấy Header Authorization
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Tách token từ header dạng 'Bearer <token>'
+  const token = authHeader && authHeader.split(' ')[1];
 
-  // Kiểm tra nếu không có token
   if (!token) {
     return res.status(401).json({ message: 'Access denied. No token provided.' });
   }
 
   try {
-    // Xác minh token
+    // Xác minh và giải mã token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Gán payload vào req.user
 
-    // Gán thông tin người dùng đã giải mã vào req.user để sử dụng trong các route tiếp theo
-    req.user = decoded;
+    console.log('Token payload:', decoded);
 
-    // Log token và địa chỉ ví sau khi xác minh thành công
-    console.log('Token hợp lệ:', token);
-    console.log('Địa chỉ ví của user:', req.user.walletAddress);
+    if (!req.user.walletAddress) {
+      console.error('Lỗi: walletAddress không có trong token payload');
+    }
 
     next();
   } catch (error) {

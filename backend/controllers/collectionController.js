@@ -1,65 +1,70 @@
-const Collection = require("../models/Collection");
-const gameShiftService = require("../services/gameshiftService");
-const path = require("path");
+const Collection = require('../models/Collection');
+const gameShiftService = require('../services/gameshiftService');
 
+const retryRequest = async (fn, retries = 3, delay = 2000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      console.error(`Attempt ${i + 1} failed:`, error.message);
+      if (i === retries - 1) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+};
+
+// Tạo Collection
 exports.createCollection = async (req, res) => {
   const { name, description, image } = req.body;
 
-  try {
-    // Kiểm tra dữ liệu đầu vào
-    if (!name || !description || !image) {
-      return res.status(400).json({
-        message: "Thiếu thông tin bắt buộc. Vui lòng cung cấp tên, mô tả và hình ảnh của Collection.",
-      });
-    }
+  // Kiểm tra dữ liệu đầu vào
+  if (!name || !description || !image) {
+    return res.status(400).json({ message: 'Thiếu thông tin cần thiết (name, description, image).' });
+  }
 
-    // Gọi GameShift API để tạo Collection
+  try {
+    // Đảm bảo URL là HTTPS
+    const secureImageUrl = image.startsWith('http://') ? image.replace('http://', 'https://') : image;
+
+    console.log("Payload gửi lên GameShift:", {
+      name,
+      description,
+      imageUrl: secureImageUrl,
+    });
+
     const collectionData = await gameShiftService.createCollection({
       name,
       description,
-      imageUrl: image, // Truyền trường imageUrl thay vì image
+      imageUrl: secureImageUrl,
     });
 
-    console.log("Phản hồi từ GameShift API:", collectionData);
-
-    // Kiểm tra nếu `id` không tồn tại trong phản hồi
     if (!collectionData.id) {
-      return res.status(500).json({
-        message: "Lỗi từ GameShift: Không nhận được id hợp lệ từ API.",
-      });
+      throw new Error('Không nhận được ID từ GameShift API.');
     }
 
     // Lưu Collection vào MongoDB
     const newCollection = new Collection({
-      name: collectionData.name,
-      description: collectionData.description,
-      image: collectionData.imageUrl,
-      ownerWallet: req.user.walletAddress,
-      gameShiftCollectionId: collectionData.id, // Lưu id thay vì collectionId
+      gameShiftCollectionId: collectionData.id,
     });
 
     await newCollection.save();
 
     res.status(201).json({
-      message: "Collection được tạo và lưu thành công!",
-      data: newCollection,
+      message: 'Collection được tạo thành công!',
+      collectionId: newCollection.gameShiftCollectionId,
     });
   } catch (error) {
-    console.error("Lỗi khi tạo Collection:", error.message);
-    res.status(500).json({ message: "Lỗi khi tạo Collection.", error: error.message });
+    console.error('Lỗi khi tạo Collection:', error.message);
+    res.status(500).json({ message: 'Lỗi khi tạo Collection.', error: error.message });
   }
 };
 
 exports.getCollections = async (req, res) => {
   try {
-    const collections = await Collection.find({ ownerWallet: req.user.walletAddress }); // Lọc theo ví của người dùng hiện tại
-    res.status(200).json({
-      message: 'Danh sách bộ sưu tập:',
-      data: collections,
-    });
+    const collections = await Collection.find(); // Chỉ trả về danh sách ID
+    res.status(200).json({ message: 'Danh sách bộ sưu tập:', data: collections });
   } catch (error) {
-    console.error('Lỗi khi lấy danh sách bộ sưu tập:', error.message);
-    res.status(500).json({ message: 'Lỗi khi lấy danh sách bộ sưu tập.', error: error.message });
+    console.error('Lỗi khi lấy bộ sưu tập:', error.message);
+    res.status(500).json({ message: 'Lỗi khi lấy bộ sưu tập.', error: error.message });
   }
 };
-

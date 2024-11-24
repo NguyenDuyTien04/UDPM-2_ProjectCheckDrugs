@@ -1,5 +1,3 @@
-// server.js
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -9,9 +7,9 @@ const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const collectionRoutes = require('./routes/collectionRouter');
+const collectionRoutes = require('./routes/collectionRoutes'); // Đảm bảo tên file routes đúng
 const nftRoutes = require('./routes/nftRoutes');
-
+const transactionRoutes = require('./routes/transactionRoutes');
 // Kết nối MongoDB
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -26,8 +24,10 @@ app.use(express.json());
 // Cung cấp tệp tĩnh cho thư mục 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
-app.use('/api/collections', collectionRoutes);
-app.use("/api/nft", nftRoutes);
+app.use('/api/collections', collectionRoutes); // Import đúng đường dẫn
+app.use('/api/nft', nftRoutes);
+app.use('/api/transactions', transactionRoutes);
+
 // Kiểm tra sức khỏe của server
 app.get('/health', (req, res) => {
   res.status(200).json({ message: 'API đang hoạt động bình thường!' });
