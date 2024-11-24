@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const gameShiftService = require('../services/gameShiftService');
+const gameShiftService = require('../services/gameshiftService');
 
 exports.register = async (req, res) => {
   const { email, walletAddress, role } = req.body;

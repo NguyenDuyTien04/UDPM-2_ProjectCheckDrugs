@@ -1,7 +1,7 @@
 // controllers/drugController.js
 
 const Thuoc = require('../models/Thuoc');
-const gameShiftService = require('../services/gameShiftService');
+const gameShiftService = require('../services/gameshiftService');
 
 // Thêm thuốc mới
 exports.addDrug = async (req, res) => {

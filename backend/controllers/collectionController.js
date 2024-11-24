@@ -1,5 +1,5 @@
 const Collection = require("../models/Collection");
-const gameShiftService = require("../services/gameShiftService");
+const gameShiftService = require("../services/gameshiftService");
 const path = require("path");
 
 exports.createCollection = async (req, res) => {
