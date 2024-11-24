@@ -1,16 +1,17 @@
-const multer = require('multer');
-const path = require('path');
+// middleware/uploadMiddleware.js
+const multer = require("multer");
 
-// Cấu hình nơi lưu trữ file và tên file
+// Cấu hình lưu trữ file
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Lưu vào thư mục 'uploads'
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}_${file.originalname}`); // Tên file độc đáo
-    },
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Lưu file vào thư mục uploads/
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}_${file.originalname}`); // Tên file độc đáo
+  },
 });
 
+// Tạo middleware upload
 const upload = multer({ storage });
 
 module.exports = upload;

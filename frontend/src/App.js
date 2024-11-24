@@ -1,36 +1,29 @@
-// App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Header from './components/Header';
-import HomePage from './components/HomePage';
-import Register from './components/Register';
-import Login from './components/Login';
-import AddMedicine from './components/AddMedicine';
-import Footer from './components/Footer';
-import AdminPanel from './components/AdminPanel';
-import PhantomConnectButton from './components/PhantomConnectButton';
-import BuyNFT from './components/BuyNFT';
-import ForgotPassword from './components/ForgotPassword'; // Import trang quên mật khẩu
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import { UserProvider } from "./context/UserContext";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import MarketNFT from "./pages/MarketNFT";
+import PurchaseHistory from "./pages/PurchaseHistory";
+import Collection from "./pages/Collection";
+import CreateNFT from "./pages/CreateNFT";
 
 function App() {
   return (
-    <Router>
-      <Header />
-      <main className="container mt-4">
+    <UserProvider>
+      <Navbar />
       <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/add-medicine" element={<AddMedicine />} />
-          <Route path="/admin-panel" element={<AdminPanel />} />
-          <Route path="/buy-nft" element={<BuyNFT />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} /> {/* Đường dẫn cho quên mật khẩu */}
-        </Routes>
-      </main>
-      <Footer />
-      <PhantomConnectButton />
-    </Router>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/collections" element={<Collection />} />
+        <Route path="/create-nft" element={<CreateNFT />} />
+        <Route path="/market" element={<MarketNFT />} />
+        <Route path="/purchase-history" element={<PurchaseHistory />} />
+      </Routes>
+    </UserProvider>
   );
 }
 

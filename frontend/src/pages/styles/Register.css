@@ -1,0 +1,182 @@
+
+/* Container chính */
+.register-container {
+  margin-top: 150px;
+  margin-left: 500px;
+  background: linear-gradient(135deg, #1a1a1a, #292929);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Tiêu đề */
+.register-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #ffc107;
+  text-shadow: 0 0 10px #ffc107, 0 0 20px #ffaa00;
+}
+
+/* Thông báo lỗi */
+.error {
+  color: #dc3545;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Form inputs */
+form input,
+form select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  background-color: #1c1c1c;
+  color: #f1f1f1;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+form input:focus,
+form select:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* Nút kết nối ví */
+.connect-wallet-btn {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #121212;
+  background: linear-gradient(45deg, #ffc107, #ffaa00);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.connect-wallet-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
+}
+
+.connect-wallet-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Nút đăng ký */
+form button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #121212;
+  background: linear-gradient(45deg, #ffc107, #ffaa00);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+form button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
+}
+
+form button:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Read-only input styling */
+form input[readonly] {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 20px 30px;
+  }
+
+  .register-container h2 {
+    font-size: 1.8rem;
+  }
+
+  form input,
+  form select,
+  .connect-wallet-btn,
+  form button {
+    font-size: 0.9rem;
+    padding: 10px 15px;
+  }
+}
+
+/* Toastify - Toast container */
+.Toastify__toast-container {
+  z-index: 10000; /* Tăng z-index để đảm bảo hiển thị trên cùng */
+  font-size: 1rem; /* Điều chỉnh kích thước font */
+  top: 80px; /* Điều chỉnh vị trí hiển thị nếu có nav */
+}
+
+/* Toastify - Toast */
+.Toastify__toast {
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2), 0px 0px 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Toastify - Success */
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #4caf50, #81c784);
+  color: #fff;
+  border: 1px solid #388e3c;
+}
+
+/* Toastify - Error */
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #f44336, #e57373);
+  color: #fff;
+  border: 1px solid #d32f2f;
+}
+
+/* Toastify - Warning */
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #ffa000, #ffc107);
+  color: #1a1a1a;
+  border: 1px solid #ff6f00;
+}
+
+/* Toastify - Close button */
+.Toastify__close-button {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+/* Toastify - Progress bar */
+.Toastify__progress-bar {
+  height: 4px;
+  background-color: #ffc107;
+}

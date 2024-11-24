@@ -1,0 +1,100 @@
+/* Container chính */
+.login-container {
+  margin-left: 500px;
+  margin-top: 200px;
+  background: linear-gradient(135deg, #1a1a1a, #292929);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #ffc107;
+  text-shadow: 0 0 10px #ffc107, 0 0 20px #ffaa00;
+}
+
+/* Error message */
+.error {
+  color: #dc3545;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Form inputs */
+form input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  background-color: #1c1c1c;
+  color: #f1f1f1;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+form input:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* Buttons */
+.connect-wallet-btn,
+form button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #121212;
+  background: linear-gradient(45deg, #ffc107, #ffaa00);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.connect-wallet-btn:hover,
+form button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
+}
+
+.connect-wallet-btn:active,
+form button:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Read-only input styling */
+form input[readonly] {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 20px 30px;
+  }
+
+  .login-container h2 {
+    font-size: 1.8rem;
+  }
+
+  form input,
+  .connect-wallet-btn,
+  form button {
+    font-size: 0.9rem;
+  }
+}

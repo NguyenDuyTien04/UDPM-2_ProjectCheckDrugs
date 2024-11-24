@@ -1,0 +1,242 @@
+/* Tổng quan */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f6f6;
+  color: #050000;
+}
+
+.create-nft-container {
+  max-width: 400px; /* Giảm chiều rộng thêm */
+  margin: 15px auto; 
+  padding: 8px 12px; /* Giảm padding thêm */
+  background-color: #262626;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  border: 1px solid #333;
+}
+
+.create-nft-container h2 {
+  text-align: center;
+  font-size: 12px; /* Giảm font-size */
+  margin-bottom: 8px; /* Khoảng cách nhỏ hơn */
+  color: #ffc107;
+}
+
+.create-nft-container h3 {
+  font-size: 8px; /* Giảm font-size */
+  margin-top: 8px;
+  color: #ffc107;
+  text-align: center;
+}
+
+/* Form styles */
+form label {
+  font-weight: bold;
+  margin-top: 4px; /* Khoảng cách nhỏ hơn */
+  display: block;
+  margin-bottom: 3px; 
+  font-size: 8px; /* Giảm font-size */
+  color: #f1f1f1;
+}
+
+form input,
+form select,
+form textarea {
+  width: 100%;
+  padding: 3px 5px; /* Giảm padding mạnh */
+  margin-bottom: 4px; /* Khoảng cách nhỏ */
+  background-color: #1c1c1c;
+  border: 1px solid #555;
+  border-radius: 3px; /* Bo góc nhỏ hơn */
+  font-size: 8px; /* Giảm font-size */
+  color: #f1f1f1;
+  transition: all 0.3s ease;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: #ffc107;
+  outline: none;
+  box-shadow: 0 0 3px rgba(255, 193, 7, 0.4); 
+}
+
+form textarea {
+  resize: none;
+  height: 40px; /* Giảm chiều cao */
+}
+
+button {
+  display: inline-block;
+  padding: 3px 6px; /* Giảm padding thêm */
+  font-size: 8px; /* Giảm font-size */
+  font-weight: bold;
+  color: #1c1c1c;
+  background-color: #ffc107;
+  border: none;
+  border-radius: 3px; /* Bo góc nhỏ */
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  margin-top: 4px; /* Khoảng cách nhỏ */
+}
+
+button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+button:hover {
+  background-color: #e0a800;
+  color: #1c1c1c;
+}
+
+/* Radio buttons for image selection */
+div {
+  margin-bottom: 6px; /* Khoảng cách nhỏ */
+}
+
+div label {
+  font-weight: normal;
+  font-size: 8px; /* Giảm font-size */
+  margin-right: 5px; 
+  display: inline-block;
+  cursor: pointer;
+  color: #f1f1f1;
+}
+
+div input[type="radio"] {
+  margin-right: 3px; 
+  transform: scale(0.7); /* Giảm kích thước */
+  vertical-align: middle;
+}
+
+/* Image preview */
+.image-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 120px; /* Giảm chiều cao */
+  margin: 4px auto; 
+  border-radius: 3px; /* Bo góc nhỏ */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid #ffc107;
+}
+
+/* Error message */
+.error-message {
+  color: #dc3545;
+  font-weight: bold;
+  text-align: center;
+  font-size: 8px; /* Giảm font-size */
+  margin: 4px 0; 
+}
+
+/* NFT list */
+.nft-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0; /* Khoảng cách nhỏ */
+}
+
+.nft-list li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #444;
+  border-radius: 4px; /* Bo góc nhỏ */
+  padding: 4px 6px; /* Giảm padding */
+  margin-bottom: 4px; /* Khoảng cách nhỏ */
+  background-color: #1c1c1c;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nft-list li img {
+  max-width: 30px; /* Giảm kích thước ảnh */
+  max-height: 30px;
+  border-radius: 4px;
+  margin-right: 6px;
+  border: 1px solid #ffc107;
+}
+
+.nft-list li h4 {
+  font-size: 8px; /* Giảm font-size */
+  margin: 0;
+  color: #ffc107;
+}
+
+.nft-list li p {
+  font-size: 7px; /* Giảm font-size */
+  color: #ddd;
+  margin: 3px 0 0;
+}
+
+/* Toastify styling override */
+.Toastify__toast {
+  border-radius: 4px;
+  font-size: 8px; /* Giảm font-size */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.Toastify__toast--success {
+  background-color: #28a745;
+  color: #fff;
+  border: 1px solid #ffc107;
+}
+
+.Toastify__toast--error {
+  background-color: #dc3545;
+  color: #fff;
+  border: 1px solid #e0a800;
+}
+
+.Toastify__toast-container {
+  z-index: 9999;
+}
+
+.Toastify__toast {
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.8rem; /* Giảm font-size */
+  font-weight: bold;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 0px 8px rgba(255, 215, 0, 0.5);
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #4caf50, #81c784);
+  color: #fff;
+  border: 1px solid #388e3c;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #f44336, #e57373);
+  color: #fff;
+  border: 1px solid #d32f2f;
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #2196f3, #64b5f6);
+  color: #fff;
+  border: 1px solid #1976d2;
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #ffa000, #ffc107);
+  color: #1a1a1a;
+  border: 1px solid #ff6f00;
+}
+
+.Toastify__close-button {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+.Toastify__progress-bar {
+  height: 3px; /* Giảm chiều cao */
+  background-color: #ffc107;
+}
