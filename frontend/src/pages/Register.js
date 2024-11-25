@@ -1,73 +1,89 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { register } from "../services/api"; // API gọi backend
+import { register } from "../services/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./styles/Register.css";
 
 function Register() {
-  const [email, setEmail] = useState("");
-  const [walletAddress, setWalletAddress] = useState("");
-  const [role, setRole] = useState("consumer");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    walletAddress: "",
+  });
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  // Kết nối ví Phantom và lấy địa chỉ ví
+  // Kết nối ví Phantom
   useEffect(() => {
-    const connectWallet = async () => {
-      if (window.solana && window.solana.isPhantom) {
-        try {
-          const response = await window.solana.connect();
-          setWalletAddress(response.publicKey.toString());
-        } catch (err) {
+    if (window.solana && window.solana.isPhantom) {
+      window.solana
+        .connect()
+        .then((response) => {
+          setFormData((prev) => ({
+            ...prev,
+            walletAddress: response.publicKey.toString(),
+          }));
+        })
+        .catch((err) => {
           console.error("Kết nối ví thất bại:", err.message);
-          setError("Vui lòng mở khóa ví Phantom để sử dụng hệ thống.");
-        }
-      } else {
-        setError("Vui lòng cài đặt ví Phantom!");
-      }
-    };
-
-    connectWallet();
+          toast.error("Vui lòng mở khóa ví Phantom!");
+        });
+    } else {
+      toast.error("Vui lòng cài đặt ví Phantom để tiếp tục.");
+    }
   }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.walletAddress) {
+      toast.error("Vui lòng kết nối ví trước khi đăng ký.");
+      return;
+    }
+
     try {
-      await register({ email, walletAddress, role });
-      alert("Đăng ký thành công!");
-      navigate("/login"); // Điều hướng đến trang đăng nhập
+      await register(formData);
+      toast.success("Đăng ký thành công!");
     } catch (err) {
-      setError("Đăng ký không thành công. Vui lòng kiểm tra lại!");
+      console.error("Đăng ký thất bại:", err.message);
+      setError("Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.");
     }
   };
 
   return (
     <div className="register-container">
+      <ToastContainer />
       <h2>Đăng ký</h2>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
         <input
+          type="text"
+          name="name"
+          placeholder="Họ và tên"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+        <input
           type="email"
-          placeholder="Nhập email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
           required
         />
         <input
           type="text"
-          placeholder="Địa chỉ ví (tự động)"
-          value={walletAddress}
+          name="walletAddress"
+          placeholder="Địa chỉ ví"
+          value={formData.walletAddress}
           readOnly
           style={{ backgroundColor: "#e9ecef", cursor: "not-allowed" }}
         />
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          required
-        >
-          <option value="admin">admin</option>
-          <option value="consumer">Người tiêu dùng</option>
-          <option value="manufacturer">Nhà sản xuất</option>
-        </select>
         <button type="submit">Đăng ký</button>
       </form>
     </div>

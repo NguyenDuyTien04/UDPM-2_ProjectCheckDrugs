@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/UserContext";
 import { loginUser } from "../services/api";
+import { ToastContainer, toast } from "react-toastify"; // Import Toastify
+import "react-toastify/dist/ReactToastify.css"; // Import CSS Toastify
 import "./styles/Login.css";
 
 function Login() {
@@ -18,12 +20,13 @@ function Login() {
         try {
           const response = await window.solana.connect({ onlyIfTrusted: true });
           setWalletAddress(response.publicKey.toString());
+          toast.success("Kết nối ví thành công!");
         } catch (err) {
           console.error("Lỗi kết nối ví:", err);
-          setError("Vui lòng mở khóa ví Phantom để tiếp tục.");
+          toast.error("Vui lòng mở khóa ví Phantom để tiếp tục.");
         }
       } else {
-        setError("Vui lòng cài đặt ví Phantom để sử dụng.");
+        toast.warning("Vui lòng cài đặt ví Phantom để sử dụng.");
       }
     };
     connectWallet();
@@ -35,12 +38,13 @@ function Login() {
         const response = await window.solana.connect();
         setWalletAddress(response.publicKey.toString());
         setError(""); // Xóa lỗi nếu kết nối thành công
+        toast.success("Kết nối ví thành công!");
       } catch (err) {
         console.error("Kết nối ví thất bại:", err.message);
-        setError("Vui lòng thử lại và mở khóa ví Phantom!");
+        toast.error("Vui lòng thử lại và mở khóa ví Phantom!");
       }
     } else {
-      setError("Vui lòng cài đặt ví Phantom để sử dụng.");
+      toast.warning("Vui lòng cài đặt ví Phantom để sử dụng.");
     }
   };
 
@@ -48,7 +52,7 @@ function Login() {
     e.preventDefault();
 
     if (!walletAddress) {
-      setError("Bạn cần kết nối ví trước khi đăng nhập.");
+      toast.error("Bạn cần kết nối ví trước khi đăng nhập.");
       return;
     }
 
@@ -57,18 +61,18 @@ function Login() {
       localStorage.setItem("token", token);
       localStorage.setItem("walletAddress", walletAddress);
       setUser(user);
-      alert("Đăng nhập thành công!");
+      toast.success("Đăng nhập thành công!");
       navigate("/");
     } catch (err) {
       console.error("Lỗi đăng nhập:", err.message);
-      setError("Đăng nhập thất bại. Vui lòng kiểm tra thông tin.");
+      toast.error("Đăng nhập thất bại. Vui lòng kiểm tra thông tin.");
     }
   };
 
   return (
     <div className="login-container">
+      <ToastContainer /> {/* Container để hiển thị thông báo */}
       <h2>Đăng nhập</h2>
-      {error && <p className="error">{error}</p>}
       {!walletAddress && (
         <button className="connect-wallet-btn" onClick={handleConnectWallet}>
           Kết nối ví Phantom
