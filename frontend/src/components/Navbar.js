@@ -1,16 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useUserContext } from "../context/UserContext"; // Sử dụng useUserContext để thay thế UserContext
+import { useUserContext } from "../context/UserContext";
 import "./styles/Navbar.css";
 
 function Navbar() {
-  const { user, logout } = useUserContext(); // Lấy user và logout từ context
+  const { user, logout } = useUserContext();
 
   return (
     <nav className="navbar">
       <h1>Drug Detection System</h1>
       <ul>
-      <li>
+        <li>
           <Link to="/">Trang chủ</Link>
         </li>
         <li>
@@ -20,22 +20,28 @@ function Navbar() {
           <Link to="/create-nft">Tạo NFT</Link>
         </li>
         <li>
-          <Link to="/market">Market</Link>
+          <Link to="/market">Chợ NFT</Link>
         </li>
         <li>
           <Link to="/purchase-history">Lịch sử giao dịch</Link>
         </li>
         {user ? (
           <>
-            <li>{user.walletAddress.slice(0, 5)}...</li>
+            <li className="wallet-info">Ví: {user.walletAddress.slice(0, 5)}...</li>
             <li>
-              <button onClick={logout}>Đăng xuất</button>
+              <button className="logout-btn" onClick={logout}>
+                Đăng xuất
+              </button>
             </li>
           </>
         ) : (
           <>
-            <li><Link to="/login">Đăng nhập</Link></li>
-            <li><Link to="/register">Đăng ký</Link></li>
+            <li>
+              <Link to="/login">Đăng nhập</Link>
+            </li>
+            <li>
+              <Link to="/register">Đăng ký</Link>
+            </li>
           </>
         )}
       </ul>

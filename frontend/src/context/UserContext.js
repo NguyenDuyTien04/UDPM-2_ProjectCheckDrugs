@@ -1,29 +1,19 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext } from "react";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage khi ứng dụng khởi chạy
+  const [user, setUser] = useState(() => {
     const walletAddress = localStorage.getItem("walletAddress");
     const token = localStorage.getItem("token");
+    return walletAddress && token ? { walletAddress, token } : null;
+  });
 
-    if (walletAddress && token) {
-      setUser({ walletAddress, token }); // Cập nhật trạng thái người dùng
-    }
-  }, []);
-
-  const login = (walletAddress, token) => {
-    // Cập nhật trạng thái người dùng và lưu vào localStorage
-    localStorage.setItem("walletAddress", walletAddress);
-    localStorage.setItem("token", token);
-    setUser({ walletAddress, token });
+  const login = (userData) => {
+    setUser(userData);
   };
 
   const logout = () => {
-    // Xóa thông tin người dùng khỏi localStorage và reset trạng thái
     localStorage.removeItem("walletAddress");
     localStorage.removeItem("token");
     setUser(null);

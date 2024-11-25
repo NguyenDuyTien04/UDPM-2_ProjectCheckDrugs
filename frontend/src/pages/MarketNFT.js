@@ -10,10 +10,12 @@ const MarketNFT = () => {
   useEffect(() => {
     const loadMarketNFTs = async () => {
       try {
-        const data = await fetchMarketNFTs(); // Lấy danh sách NFT từ API
+        const response = await fetchMarketNFTs(); // Lấy danh sách NFT từ API
+        const data = response.data; // Đảm bảo response có trường data
+
         // Phân loại NFT theo type
-        const certificateNFTs = data.data.filter((nft) => nft.type === "certificate");
-        const medicineNFTs = data.data.filter((nft) => nft.type === "medicine");
+        const certificateNFTs = data.filter((nft) => nft.type === "certificate");
+        const medicineNFTs = data.filter((nft) => nft.type === "medicine");
         setCertificates(certificateNFTs);
         setMedicines(medicineNFTs);
       } catch (error) {

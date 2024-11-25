@@ -11,57 +11,60 @@ const Collections = () => {
   const [showNFTPopup, setShowNFTPopup] = useState(false);
   const [currentCollectionId, setCurrentCollectionId] = useState(null);
   const [nfts, setNFTs] = useState([]);
-  const [selectedNFT, setSelectedNFT] = useState(null); // Lưu NFT đang chọn để rao bán
-  const [showSellModal, setShowSellModal] = useState(false); // Modal xác nhận rao bán
-  const [sellPrice, setSellPrice] = useState(""); // Giá bán
-  const [sellCurrency, setSellCurrency] = useState("SOL"); // Loại tiền tệ
+  const [selectedNFT, setSelectedNFT] = useState(null);
+  const [showSellModal, setShowSellModal] = useState(false);
+  const [sellPrice, setSellPrice] = useState("");
+  const [sellCurrency, setSellCurrency] = useState("SOL");
   const [newCollectionData, setNewCollectionData] = useState({
     name: "",
     description: "",
     imageUrl: "",
   });
 
-  // Fetch collections
+  // Lấy danh sách bộ sưu tập
   useEffect(() => {
     const loadCollections = async () => {
       try {
-        console.log("Token đang được gửi:", user.token);
-        const data = await fetchCollections(user.token); // Gọi API
-        setCollections(data.data);
+        const data = await fetchCollections(user.token);
+        setCollections(data.collections); // Backend trả về danh sách collections
       } catch (error) {
-        console.error("Lỗi khi tải danh sách bộ sưu tập:", error.response || error.message);
-        alert("Lỗi khi tải danh sách bộ sưu tập.");
+        console.error("Lỗi khi tải danh sách bộ sưu tập:", error.message);
+        alert("Không thể tải danh sách bộ sưu tập.");
       } finally {
         setLoading(false);
       }
     };
-  
+
     loadCollections();
   }, [user.token]);
 
-  // Fetch NFTs in a collection
+  // Lấy danh sách NFT của bộ sưu tập
   const fetchNFTs = async (collectionId) => {
     try {
       const data = await getNFTsByCollection(collectionId, user.token);
-      setNFTs(data.data);
+      setNFTs(data.nfts); // Backend trả về danh sách NFTs
       setCurrentCollectionId(collectionId);
       setShowNFTPopup(true);
     } catch (error) {
-      alert("Lỗi khi tải danh sách NFT.");
+      console.error("Lỗi khi tải danh sách NFT:", error.message);
+      alert("Không thể tải danh sách NFT.");
     }
   };
 
-  // Create a new collection
+  // Tạo bộ sưu tập mới
   const handleCreateCollection = async (e) => {
     e.preventDefault();
     try {
-      await createCollection(newCollectionData, user.token);
-      alert("Tạo bộ sưu tập thành công!");
+      const createdCollection = await createCollection(newCollectionData, user.token);
+      alert(`Tạo bộ sưu tập "${createdCollection.name}" thành công!`);
       setShowCollectionPopup(false);
-      const data = await fetchCollections(user.token); // Refresh collections
-      setCollections(data.data);
+
+      // Tải lại danh sách bộ sưu tập
+      const data = await fetchCollections(user.token);
+      setCollections(data.collections);
     } catch (error) {
-      alert("Lỗi khi tạo bộ sưu tập. Vui lòng thử lại.");
+      console.error("Lỗi khi tạo bộ sưu tập:", error.message);
+      alert("Không thể tạo bộ sưu tập. Vui lòng thử lại.");
     }
   };
 
@@ -72,14 +75,15 @@ const Collections = () => {
         alert("Vui lòng nhập giá bán hợp lệ.");
         return;
       }
+
       await sellNFT(selectedNFT._id, sellPrice, sellCurrency, user.token);
       alert(`NFT "${selectedNFT.name}" đã được rao bán thành công!`);
       setShowSellModal(false);
       setSellPrice("");
       setSellCurrency("SOL");
     } catch (error) {
-      console.error("Lỗi khi rao bán NFT:", error);
-      alert("Lỗi khi rao bán NFT. Vui lòng thử lại.");
+      console.error("Lỗi khi rao bán NFT:", error.message);
+      alert("Không thể rao bán NFT. Vui lòng thử lại.");
     }
   };
 
@@ -122,22 +126,20 @@ const Collections = () => {
               <textarea
                 placeholder="Mô tả"
                 value={newCollectionData.description}
-                onChange={(e) =>
-                  setNewCollectionData({ ...newCollectionData, description: e.target.value })
-                }
+                onChange={(e) => setNewCollectionData({ ...newCollectionData, description: e.target.value })}
                 required
               ></textarea>
               <input
                 type="text"
                 placeholder="URL Hình Ảnh"
                 value={newCollectionData.imageUrl}
-                onChange={(e) =>
-                  setNewCollectionData({ ...newCollectionData, imageUrl: e.target.value })
-                }
+                onChange={(e) => setNewCollectionData({ ...newCollectionData, imageUrl: e.target.value })}
                 required
               />
               <button type="submit">Tạo</button>
-              <button onClick={() => setShowCollectionPopup(false)}>Hủy</button>
+              <button type="button" onClick={() => setShowCollectionPopup(false)}>
+                Hủy
+              </button>
             </form>
           </div>
         </div>
