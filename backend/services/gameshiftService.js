@@ -120,20 +120,17 @@ exports.fetchCollectionsFromGameShift = async () => {
 exports.createNFT = async (nftData) => {
   try {
     console.log('Payload gửi lên GameShift:', nftData);
-    console.log('API Key sử dụng:', API_KEY);
-
     const response = await axios.post(
       `${BASE_URL}/unique-assets`,
       nftData,
       {
         headers: {
-          'x-api-key': API_KEY,
+          'x-api-key': API_KEY, // Thay bằng API Key của bạn
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }
     );
-
     console.log('Phản hồi từ GameShift khi tạo NFT:', response.data);
     return response.data;
   } catch (error) {
@@ -147,6 +144,8 @@ exports.createNFT = async (nftData) => {
     throw new Error(`GameShift Error: ${error.message}`);
   }
 };
+
+
 
 
 // Lấy tất cả NFT từ GameShift

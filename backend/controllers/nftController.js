@@ -3,26 +3,40 @@ const Transaction = require('../models/Transaction');
 const gameShiftService = require('../services/gameshiftService');
 
 exports.createNFT = async (req, res) => {
-  const { collectionId, description, name, imageUrl } = req.body;
+  const { collectionId, description, name, imageUrl, type } = req.body;
 
   // Kiểm tra các trường bắt buộc
-  if (!collectionId || !description || !name || !imageUrl) {
+  if (!collectionId || !description || !name || !imageUrl || !type) {
     return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo NFT.' });
   }
 
   try {
+    // Kiểm tra nếu `req.user.walletAddress` tồn tại
+    if (!req.user || !req.user.walletAddress) {
+      return res.status(400).json({
+        message: 'Không tìm thấy địa chỉ ví người dùng (destinationUserReferenceId).',
+      });
+    }
+
     // Chuẩn bị payload gửi lên GameShift API
     const nftData = {
       details: {
+        attributes: [
+          {
+            traitType: 'type',
+            value: type, // Thêm type vào NFT
+          },
+        ],
         collectionId,
         description,
         name,
         imageUrl,
       },
-      destinationUserReferenceId: req.user.walletAddress, // Lấy từ payload JWT
+      destinationUserReferenceId: req.user.walletAddress, // Địa chỉ ví của người dùng
     };
 
-    console.log('Payload gửi lên GameShift:', nftData);
+    console.log('--- Payload gửi lên GameShift ---');
+    console.log(JSON.stringify(nftData, null, 2));
 
     // Gọi GameShift API để tạo NFT
     const gameShiftResponse = await gameShiftService.createNFT(nftData);
@@ -38,14 +52,16 @@ exports.createNFT = async (req, res) => {
     await newNFT.save();
 
     res.status(201).json({
-      message: 'NFT giấy chứng nhận được tạo thành công!',
+      message: 'NFT được tạo thành công!',
       nftId: newNFT.gameShiftNFTId,
     });
   } catch (error) {
-    console.error('Lỗi khi tạo NFT:', error.message);
+    console.error('--- Lỗi khi tạo NFT ---', error.message);
     res.status(500).json({ message: 'Lỗi khi tạo NFT.', error: error.message });
   }
 };
+
+
 
 exports.getAllNFTs = async (req, res) => {
   try {
