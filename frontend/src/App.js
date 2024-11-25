@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import MarketNFT from "./pages/MarketNFT";
 import PurchaseHistory from "./pages/PurchaseHistory";
 import Collection from "./pages/Collection";
+import CreateNFT from "./pages/CreateNFT";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/collections" element={<Collection />} />
+        <Route path="/create-nft" element={<CreateNFT />} />
         <Route path="/market" element={<MarketNFT />} />
         <Route path="/purchase-history" element={<PurchaseHistory />} />
       </Routes>
