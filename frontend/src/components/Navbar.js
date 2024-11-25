@@ -25,6 +25,9 @@ function Navbar() {
         <li>
           <Link to="/purchase-history">Lịch sử giao dịch</Link>
         </li>
+        <li>
+          <Link to="/shippingtracking">Vận chuyển</Link>
+        </li>
         {user ? (
           <>
             <li>{user.walletAddress.slice(0, 5)}...</li>

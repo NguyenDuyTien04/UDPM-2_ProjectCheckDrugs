@@ -1,0 +1,72 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+  }
+  
+  /* Đặt kiểu cho bảng */
+  table {
+    margin: 20px auto;
+    width: 90%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #4CAF50;
+    color: white;
+    text-transform: uppercase;
+  }
+  
+  td {
+    color: #333;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tr:hover {
+    background-color: #f1f7ff;
+  }
+  
+  /* Thêm hiệu ứng cho nút cảnh báo hoặc trạng thái */
+  td:nth-child(5) {
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  td:nth-child(5):contains('Đang vận chuyển') {
+    color: #FFA500; /* Màu cam */
+  }
+  
+  td:nth-child(5):contains('Đã giao hàng') {
+    color: #4CAF50; /* Màu xanh lá */
+  }
+  
+  td:nth-child(5):contains('Hủy bỏ') {
+    color: #FF0000; /* Màu đỏ */
+  }
+  
+  /* Đặt kiểu cho thông báo tải dữ liệu */
+  p {
+    text-align: center;
+    font-size: 18px;
+    color: #666;
+  }
