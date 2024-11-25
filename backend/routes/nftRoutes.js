@@ -23,4 +23,7 @@ router.get('/gameshift/list', authMiddleware, nftController.getAllNFTsFromGameSh
 
 // API để lấy danh sách NFT đang được rao bán
 router.get('/for-sale', nftController.getNFTsForSale);
+
+// Route để lấy danh sách NFT trong một bộ sưu tập
+router.get('/collection', authMiddleware, nftController.getNFTsByCollection);
 module.exports = router;

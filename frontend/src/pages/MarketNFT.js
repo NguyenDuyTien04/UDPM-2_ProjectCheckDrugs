@@ -10,17 +10,22 @@ const MarketNFT = () => {
   useEffect(() => {
     const loadMarketNFTs = async () => {
       try {
-        const response = await fetchMarketNFTs(); // Lấy danh sách NFT từ API
-        const data = response.data; // Đảm bảo response có trường data
+        const data = await fetchMarketNFTs(); // Lấy danh sách NFT từ API
+        
+        // Kiểm tra nếu `data` không phải là mảng
+        if (!Array.isArray(data)) {
+          throw new Error("Dữ liệu từ API không hợp lệ.");
+        }
 
-        // Phân loại NFT theo type
+        // Phân loại NFT theo `type`
         const certificateNFTs = data.filter((nft) => nft.type === "certificate");
         const medicineNFTs = data.filter((nft) => nft.type === "medicine");
+
         setCertificates(certificateNFTs);
         setMedicines(medicineNFTs);
       } catch (error) {
-        console.error("Lỗi khi tải danh sách NFT trên Market:", error);
-        alert("Lỗi khi tải danh sách NFT trên Market.");
+        console.error("Lỗi khi tải danh sách NFT trên Market:", error.message);
+        alert("Không thể tải danh sách NFT trên Market.");
       } finally {
         setLoading(false);
       }
@@ -39,39 +44,47 @@ const MarketNFT = () => {
           {/* Hiển thị danh sách Giấy chứng nhận */}
           <div className="market-section">
             <h3>Giấy chứng nhận</h3>
-            <div className="market-list">
-              {certificates.map((nft) => (
-                <div key={nft._id} className="market-card">
-                  <img src={nft.imageUrl} alt={nft.name} />
-                  <h4>{nft.name}</h4>
-                  <p>{nft.description}</p>
-                  <p>
-                    Giá: {nft.price} {nft.currency}
-                  </p>
-                  <button className="btn-buy">Mua ngay</button>
-                </div>
-              ))}
-            </div>
+            {certificates.length > 0 ? (
+              <div className="market-list">
+                {certificates.map((nft) => (
+                  <div key={nft._id} className="market-card">
+                    <img src={nft.imageUrl} alt={nft.name} />
+                    <h4>{nft.name}</h4>
+                    <p>{nft.description}</p>
+                    <p>
+                      Giá: {nft.price} {nft.currency || "SOL"}
+                    </p>
+                    <button className="btn-buy">Mua ngay</button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Không có NFT nào thuộc loại "Giấy chứng nhận".</p>
+            )}
           </div>
 
-          <hr /> {/* Dòng phân cách */}
+          <hr />
 
           {/* Hiển thị danh sách Thuốc */}
           <div className="market-section">
             <h3>Thuốc</h3>
-            <div className="market-list">
-              {medicines.map((nft) => (
-                <div key={nft._id} className="market-card">
-                  <img src={nft.imageUrl} alt={nft.name} />
-                  <h4>{nft.name}</h4>
-                  <p>{nft.description}</p>
-                  <p>
-                    Giá: {nft.price} {nft.currency}
-                  </p>
-                  <button className="btn-buy">Mua ngay</button>
-                </div>
-              ))}
-            </div>
+            {medicines.length > 0 ? (
+              <div className="market-list">
+                {medicines.map((nft) => (
+                  <div key={nft._id} className="market-card">
+                    <img src={nft.imageUrl} alt={nft.name} />
+                    <h4>{nft.name}</h4>
+                    <p>{nft.description}</p>
+                    <p>
+                      Giá: {nft.price} {nft.currency || "SOL"}
+                    </p>
+                    <button className="btn-buy">Mua ngay</button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Không có NFT nào thuộc loại "Thuốc".</p>
+            )}
           </div>
         </>
       )}

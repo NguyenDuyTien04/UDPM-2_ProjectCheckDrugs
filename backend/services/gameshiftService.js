@@ -144,9 +144,32 @@ exports.createNFT = async (nftData) => {
     throw new Error(`GameShift Error: ${error.message}`);
   }
 };
+// Lấy danh sách NFT trong bộ sưu tập
+exports.getNFTsByCollection = async (collectionId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/items`, {
+      headers: {
+        'accept': 'application/json',
+        'x-api-key': API_KEY, // API Key để xác thực
+      },
+      params: {
+        collectionId, // Truyền collectionId qua query
+      },
+    });
 
-
-
+    console.log('Phản hồi từ GameShift API:', response.data);
+    return response.data; // Trả về dữ liệu từ API
+  } catch (error) {
+    if (error.response) {
+      console.error('Lỗi từ GameShift API (response):', error.response.data);
+    } else if (error.request) {
+      console.error('Lỗi từ GameShift API (request):', error.request);
+    } else {
+      console.error('Lỗi khi gọi GameShift API:', error.message);
+    }
+    throw new Error(`GameShift Error: ${error.message}`);
+  }
+};
 
 // Lấy tất cả NFT từ GameShift
 exports.fetchAllNFTs = async () => {

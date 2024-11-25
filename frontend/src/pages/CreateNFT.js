@@ -1,45 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { createCertificateNFT, createMedicineNFT, fetchCollections } from '../services/api';
+import { createNFT, fetchCollections } from '../services/api';
 import { useUserContext } from '../context/UserContext';
-import { ToastContainer, toast } from 'react-toastify'; 
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/CreateNFT.css';
 
 const CreateNFT = () => {
-  const [type, setType] = useState('certificate');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     collectionId: '',
-    price: '',
-    imageUrl: '', // URL của ảnh online
+    type: '', // Không đặt mặc định, bắt buộc người dùng chọn
+    imageUrl: '',
   });
-  const [selectedImage, setSelectedImage] = useState(null); // File ảnh từ máy
-  const [imagePreview, setImagePreview] = useState(''); // Đường dẫn xem trước ảnh
-  const [useUrl, setUseUrl] = useState(true); // Chọn giữa URL hoặc File
+  const [imagePreview, setImagePreview] = useState('');
   const [collections, setCollections] = useState([]);
   const [nftsCreated, setNftsCreated] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useUserContext();
 
+  // Lấy danh sách bộ sưu tập
   useEffect(() => {
     const fetchUserCollections = async () => {
       setIsLoading(true);
       try {
+        if (!user?.token) throw new Error('Không có token. Vui lòng đăng nhập lại.');
+        console.log('Token:', user.token); // Kiểm tra token
         const response = await fetchCollections(user.token);
-        setCollections(response.data);
-        setIsLoading(false);
+        setCollections(response.data || []);
         toast.success('Danh sách bộ sưu tập đã tải thành công!', {
           position: 'top-center',
         });
       } catch (error) {
         console.error('Lỗi khi tải bộ sưu tập:', error);
         setError('Không thể tải bộ sưu tập. Vui lòng thử lại.');
-        setIsLoading(false);
         toast.error('Không thể tải bộ sưu tập. Vui lòng thử lại.', {
           position: 'top-center',
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -49,33 +49,24 @@ const CreateNFT = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   const handleImageUrlBlur = () => {
     if (formData.imageUrl.trim() === '') return;
-  
+
     const image = new Image();
     image.src = formData.imageUrl;
-  
+
     image.onload = () => {
       setImagePreview(formData.imageUrl);
-      console.log('Ảnh tải thành công:', formData.imageUrl); // Ghi log khi ảnh hợp lệ
-      toast.success('Ảnh hợp lệ!');
+      toast.success('URL ảnh hợp lệ!', { position: 'top-center' });
     };
-  
+
     image.onerror = () => {
       setImagePreview('');
-      console.error('Không thể tải ảnh từ URL:', formData.imageUrl); // Ghi log khi lỗi
-      toast.error('URL ảnh không hợp lệ hoặc không thể tải ảnh.');
+      toast.error('URL ảnh không hợp lệ hoặc không thể tải ảnh.', {
+        position: 'top-center',
+      });
     };
-  };
-  
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Tạo đường dẫn xem trước
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -83,50 +74,44 @@ const CreateNFT = () => {
     setError(null);
     setIsLoading(true);
 
+    // Kiểm tra token
+    if (!user?.token) {
+      toast.error('Vui lòng đăng nhập lại để tiếp tục.', { position: 'top-center' });
+      setIsLoading(false);
+      return;
+    }
+
+    // Kiểm tra các trường bắt buộc
+    if (
+      !formData.name.trim() ||
+      !formData.description.trim() ||
+      !formData.collectionId.trim() ||
+      !formData.type.trim() ||
+      !formData.imageUrl.trim()
+    ) {
+      toast.error('Vui lòng điền đầy đủ thông tin!', { position: 'top-center' });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('collectionId', formData.collectionId);
-      formDataToSend.append('price', formData.price);
+      // Gọi API tạo NFT
+      const response = await createNFT(formData, user.token);
+      setNftsCreated((prev) => [...prev, response]); // Cập nhật danh sách NFT đã tạo
+      toast.success(`NFT "${formData.name}" được tạo thành công!`, { position: 'top-center' });
 
-      if (useUrl) {
-        // Nếu sử dụng URL ảnh
-        formDataToSend.append('imageUrl', formData.imageUrl);
-      } else if (selectedImage) {
-        // Nếu chọn file từ máy tính
-        formDataToSend.append('image', selectedImage);
-      } else {
-        toast.error('Vui lòng chọn ảnh hoặc nhập URL ảnh!');
-        setIsLoading(false);
-        return;
-      }
-
-      const createFunction =
-        type === 'certificate' ? createCertificateNFT : createMedicineNFT;
-      const response = await createFunction(formDataToSend, user.token);
-
-      setNftsCreated((prev) => [...prev, response]);
-      toast.success(`NFT ${type === 'certificate' ? 'giấy chứng nhận' : 'thuốc'} được tạo thành công!`, {
-        position: 'top-center',
-      });
-
-      // Reset lại form
+      // Reset form
       setFormData({
         name: '',
         description: '',
         collectionId: '',
-        price: '',
+        type: '',
         imageUrl: '',
       });
-      setSelectedImage(null);
       setImagePreview('');
     } catch (error) {
       console.error('Lỗi khi tạo NFT:', error);
-      setError('Lỗi khi tạo NFT. Vui lòng thử lại.');
-      toast.error('Lỗi khi tạo NFT. Vui lòng thử lại.', {
-        position: 'top-center',
-      });
+      toast.error('Lỗi khi tạo NFT. Vui lòng thử lại.', { position: 'top-center' });
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +123,15 @@ const CreateNFT = () => {
       <h2>Tạo NFT</h2>
       <form onSubmit={handleSubmit}>
         <label>Loại NFT:</label>
-        <select value={type} onChange={(e) => setType(e.target.value)}>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          required
+        >
+          <option value="" disabled>
+            Chọn loại NFT
+          </option>
           <option value="certificate">Giấy chứng nhận</option>
           <option value="medicine">Thuốc</option>
         </select>
@@ -160,59 +153,21 @@ const CreateNFT = () => {
           onChange={handleChange}
         />
 
-        <label>Chọn cách tải ảnh:</label>
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="useUrl"
-              checked={useUrl}
-              onChange={() => setUseUrl(true)}
-            />
-            Sử dụng URL ảnh
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="useUrl"
-              checked={!useUrl}
-              onChange={() => setUseUrl(false)}
-            />
-            Tải ảnh từ máy
-          </label>
-        </div>
-
-        {useUrl ? (
-          <>
-            <label>URL ảnh:</label>
-            <input
-              type="text"
-              name="imageUrl"
-              placeholder="Nhập URL hình ảnh"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              onBlur={handleImageUrlBlur} // Kiểm tra URL khi rời khỏi trường nhập
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Xem trước hình ảnh"
-                className="image-preview"
-              />
-            )}
-          </>
-        ) : (
-          <>
-            <label>Chọn tệp hình ảnh:</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Xem trước hình ảnh"
-                className="image-preview"
-              />
-            )}
-          </>
+        <label>URL ảnh:</label>
+        <input
+          type="text"
+          name="imageUrl"
+          placeholder="Nhập URL hình ảnh"
+          value={formData.imageUrl}
+          onChange={handleChange}
+          onBlur={handleImageUrlBlur} // Kiểm tra URL khi rời khỏi trường nhập
+        />
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Xem trước hình ảnh"
+            className="image-preview"
+          />
         )}
 
         <label>Bộ sưu tập:</label>
@@ -220,23 +175,17 @@ const CreateNFT = () => {
           name="collectionId"
           value={formData.collectionId}
           onChange={handleChange}
+          required
         >
-          <option value="">Chọn bộ sưu tập</option>
+          <option value="" disabled>
+            Chọn bộ sưu tập
+          </option>
           {collections.map((collection) => (
-            <option key={collection._id} value={collection._id}>
-              {collection.name}
+            <option key={collection.id} value={collection.id}>
+              {collection.name || 'Tên không xác định'}
             </option>
           ))}
         </select>
-
-        <label>Giá (SOL):</label>
-        <input
-          type="number"
-          name="price"
-          placeholder="Giá (SOL)"
-          value={formData.price}
-          onChange={handleChange}
-        />
 
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Đang tạo...' : 'Tạo NFT'}
@@ -251,7 +200,7 @@ const CreateNFT = () => {
           <li key={index}>
             <h4>{nft.name}</h4>
             <p>{nft.description}</p>
-            <img src={nft.imageUrl || nft.image} alt={nft.name} />
+            <img src={nft.imageUrl} alt={nft.name} />
           </li>
         ))}
       </ul>

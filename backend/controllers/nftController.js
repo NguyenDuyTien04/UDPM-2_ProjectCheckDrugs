@@ -271,3 +271,25 @@ exports.sellNFT = async (req, res) => {
       res.status(500).json({ message: 'Lỗi khi rao bán NFT.', error: error.message });
   }
 };
+
+// Lấy danh sách NFT trong một bộ sưu tập
+exports.getNFTsByCollection = async (req, res) => {
+  const { collectionId } = req.query; // Lấy collectionId từ query parameters
+
+  if (!collectionId) {
+    return res.status(400).json({ message: 'Thiếu collectionId trong yêu cầu.' });
+  }
+
+  try {
+    // Gọi service để lấy danh sách NFT từ GameShift
+    const nfts = await gameShiftService.getNFTsByCollection(collectionId);
+
+    res.status(200).json({
+      message: `Danh sách NFT trong bộ sưu tập ${collectionId} đã được lấy thành công.`,
+      data: nfts,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách NFT:', error.message);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách NFT.', error: error.message });
+  }
+};
