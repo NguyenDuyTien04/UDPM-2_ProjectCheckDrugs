@@ -4,6 +4,7 @@ import { useUserContext } from '../context/UserContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/CreateNFT.css';
+import { fetchNFTs } from '../services/api'; // Cập nhật đúng đường dẫn
 
 const CreateNFT = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,8 @@ const CreateNFT = () => {
     type: '', // Không đặt mặc định, bắt buộc người dùng chọn
     imageUrl: '',
   });
+
+  
   const [imagePreview, setImagePreview] = useState('');
   const [collections, setCollections] = useState([]);
   const [nftsCreated, setNftsCreated] = useState([]);
@@ -20,31 +23,37 @@ const CreateNFT = () => {
   const [error, setError] = useState(null);
   const { user } = useUserContext();
 
-  // Lấy danh sách bộ sưu tập
-  useEffect(() => {
-    const fetchUserCollections = async () => {
-      setIsLoading(true);
-      try {
-        if (!user?.token) throw new Error('Không có token. Vui lòng đăng nhập lại.');
-        console.log('Token:', user.token); // Kiểm tra token
-        const response = await fetchCollections(user.token);
-        setCollections(response.data || []);
-        toast.success('Danh sách bộ sưu tập đã tải thành công!', {
-          position: 'top-center',
-        });
-      } catch (error) {
-        console.error('Lỗi khi tải bộ sưu tập:', error);
-        setError('Không thể tải bộ sưu tập. Vui lòng thử lại.');
-        toast.error('Không thể tải bộ sưu tập. Vui lòng thử lại.', {
-          position: 'top-center',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    fetchUserCollections();
-  }, [user.token]);
+  
+  const fetchNFTCollections = async (token) => {
+    console.log("Fetching collections with token:", token); // Logs the user token
+    try {
+        const collectionsData = await fetchCollections(token); // Calls fetchCollections API
+        console.log("collectionsData",collectionsData);
+        if (collectionsData && collectionsData.length > 0) {
+            setCollections(collectionsData); // Updates state with fetched NFT collections
+            toast.success('Danh sách bộ sưu tập NFT đã tải thành công!', {
+                position: 'top-center',
+            });
+        } else {
+            toast.warning('Không có bộ sưu tập NFT nào được tìm thấy.', {
+                position: 'top-center',
+            });
+        }
+    } catch (err) {
+        console.error('Lỗi khi tải danh sách bộ sưu tập NFT:', err.message); // Logs error
+        setError(err.message); // Sets error state
+        toast.error('Không thể tải danh sách bộ sưu tập NFT.', {
+            position: 'top-center',
+        });
+    }
+};
+
+useEffect(() => {
+  if (user.token) {
+      fetchNFTCollections(user.token); // Calls fetchNFTCollections when token is available or changes
+  }
+}, [user.token]); // Dependency on user.token (re-runs when token changes)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,44 +83,21 @@ const CreateNFT = () => {
     setError(null);
     setIsLoading(true);
 
-    // Kiểm tra token
     if (!user?.token) {
-      toast.error('Vui lòng đăng nhập lại để tiếp tục.', { position: 'top-center' });
+      toast.error('Please log in to continue.', { position: 'top-center' });
       setIsLoading(false);
       return;
     }
 
-    // Kiểm tra các trường bắt buộc
-    if (
-      !formData.name.trim() ||
-      !formData.description.trim() ||
-      !formData.collectionId.trim() ||
-      !formData.type.trim() ||
-      !formData.imageUrl.trim()
-    ) {
-      toast.error('Vui lòng điền đầy đủ thông tin!', { position: 'top-center' });
-      setIsLoading(false);
-      return;
-    }
+    console.log('Submitting form data:', formData); // Log form data
 
     try {
-      // Gọi API tạo NFT
-      const response = await createNFT(formData, user.token);
-      setNftsCreated((prev) => [...prev, response]); // Cập nhật danh sách NFT đã tạo
-      toast.success(`NFT "${formData.name}" được tạo thành công!`, { position: 'top-center' });
-
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        collectionId: '',
-        type: '',
-        imageUrl: '',
-      });
-      setImagePreview('');
+      const newNFT = await createNFT(formData, user.token);
+      setNftsCreated([...nftsCreated, newNFT]);
+      toast.success('NFT created successfully!', { position: 'top-center' });
     } catch (error) {
-      console.error('Lỗi khi tạo NFT:', error);
-      toast.error('Lỗi khi tạo NFT. Vui lòng thử lại.', { position: 'top-center' });
+      console.error('Error creating NFT:', error); // Log error details
+      toast.error('Failed to create NFT. Please try again.', { position: 'top-center' });
     } finally {
       setIsLoading(false);
     }
@@ -181,7 +167,7 @@ const CreateNFT = () => {
             Chọn bộ sưu tập
           </option>
           {collections.map((collection) => (
-            <option key={collection.id} value={collection.id}>
+            <option key={collection.id} value={collection.gameShiftCollectionId}>
               {collection.name || 'Tên không xác định'}
             </option>
           ))}
@@ -195,17 +181,27 @@ const CreateNFT = () => {
       {error && <p className="error-message">{error}</p>}
 
       <h3>Danh sách NFT đã tạo</h3>
-      <ul className="nft-list">
-        {nftsCreated.map((nft, index) => (
-          <li key={index}>
-            <h4>{nft.name}</h4>
-            <p>{nft.description}</p>
-            <img src={nft.imageUrl} alt={nft.name} />
-          </li>
-        ))}
-      </ul>
+{nftsCreated.length > 0 ? (
+  <ul className="nft-list">
+    {nftsCreated.map((nft, index) => (
+      <li key={index} className="nft-item">
+        <h4>{nft.name}</h4>
+        <p>{nft.description || 'Không có mô tả'}</p>
+        {nft.imageUrl ? (
+          <img src={nft.imageUrl} alt={nft.name} className="nft-image" />
+        ) : (
+          <p>Không có hình ảnh</p>
+        )}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>Không có NFT nào được tạo.</p>
+)}
+
     </div>
   );
 };
+
 
 export default CreateNFT;

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const nftController = require('../controllers/nftController');
+const  itemController= require('../controllers/Itemcontroller');
 
 // Tạo NFT mới
 router.post('/create', authMiddleware, nftController.createNFT);
@@ -26,4 +27,9 @@ router.get('/for-sale', nftController.getNFTsForSale);
 
 // Route để lấy danh sách NFT trong một bộ sưu tập
 router.get('/collection', authMiddleware, nftController.getNFTsByCollection);
+
+
+// lấy thông tin theo id nft
+router.get('/nfts/:nftId', itemController.fetchNFTFromGameShift);
+
 module.exports = router;
