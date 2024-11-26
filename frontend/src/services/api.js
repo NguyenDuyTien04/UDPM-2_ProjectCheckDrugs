@@ -68,20 +68,20 @@ export const createCollection = async (data, token) => {
 // Tạo NFT
 export const createNFT = async (data, token) => {
     try {
-      if (!token) throw new Error("Token không tồn tại.");
-      const response = await axios.post(`${API_BASE_URL}/nft/create`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Thêm token vào header
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
+        if (!token) throw new Error("Token không tồn tại.");
+        const response = await axios.post(`${API_BASE_URL}/nft/create`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Thêm token vào header
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data;
     } catch (error) {
-      console.error("Lỗi khi tạo NFT:", error.response?.data?.message || error.message);
-      throw error;
+        console.error("Lỗi khi tạo NFT:", error.response?.data?.message || error.message);
+        throw error;
     }
-  };
-  
+};
+
 // Lấy danh sách NFT
 export const fetchNFTs = async () => {
     try {
@@ -95,18 +95,18 @@ export const fetchNFTs = async () => {
 
 // Rao bán NFT
 export const sellNFT = async (nftId, priceData, token) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/nft/sell/${nftId}`, priceData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Lỗi khi rao bán NFT:", error.response?.data?.message || error.message);
-    throw error;
-  }
+    try {
+        const response = await axios.post(`${API_BASE_URL}/nft/sell/${nftId}`, priceData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi rao bán NFT:", error.response?.data?.message || error.message);
+        throw error;
+    }
 };
 
 // Hủy NFT Listing
@@ -142,44 +142,53 @@ export const fetchGameShiftNFTs = async () => {
     }
 };
 
-// Lấy danh sách NFT trên Market (không cần token)
 export const fetchMarketNFTs = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/nft/for-sale`);
-      return response.data.data;
+        const response = await axios.get(`${API_BASE_URL}/nft/for-sale`);
+        console.log("Dữ liệu từ API:", response.data);
+
+        // Kiểm tra nếu `response.data.data` tồn tại và là một mảng
+        const nftList =
+            response.data.data?.data && Array.isArray(response.data.data.data)
+                ? response.data.data.data.map((entry) => entry.item) // Lấy `item` từ mỗi object
+                : [];
+
+        return nftList;
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách NFT trên Market:", error.response?.data?.message || error.message);
-      throw error;
+        console.error(
+            "Lỗi khi lấy danh sách NFT trên Market:",
+            error.response?.data?.message || error.message
+        );
+        throw error;
     }
-  };
-  
+};
 
 // Lấy danh sách NFT trong một bộ sưu tập
 export const getNFTsByCollection = async (collectionId, token) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/nft/collection`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { collectionId },
-      });
-      return response.data;
+        const response = await axios.get(`${API_BASE_URL}/nft/collection`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: { collectionId },
+        });
+        return response.data;
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách NFT:", error.response?.data?.message || error.message);
-      throw error;
+        console.error("Lỗi khi lấy danh sách NFT:", error.response?.data?.message || error.message);
+        throw error;
     }
-  };
+};
 // Lấy lịch sử giao dịch của người dùng
 export const fetchPurchaseHistory = async (token) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Gửi token xác thực
-        },
-      });
-      return response.data; // API trả về danh sách giao dịch
+        const response = await axios.get(`${API_BASE_URL}/transactions`, {
+            headers: {
+                Authorization: `Bearer ${token}`, // Gửi token xác thực
+            },
+        });
+        return response.data; // API trả về danh sách giao dịch
     } catch (error) {
-      console.error("Lỗi khi lấy lịch sử giao dịch:", error.response?.data || error.message);
-      throw error;
+        console.error("Lỗi khi lấy lịch sử giao dịch:", error.response?.data || error.message);
+        throw error;
     }
-  };
+};
