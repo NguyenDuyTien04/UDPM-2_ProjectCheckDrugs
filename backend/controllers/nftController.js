@@ -293,3 +293,25 @@ exports.getNFTsByCollection = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách NFT.', error: error.message });
   }
 };
+// Lấy danh sách NFT của người dùng
+exports.getUserNFTs = async (req, res) => {
+  const { walletAddress } = req.user; // Lấy walletAddress từ token đã giải mã bởi authMiddleware
+
+  if (!walletAddress) {
+    return res.status(400).json({ message: "Wallet address không hợp lệ." });
+  }
+
+  try {
+    const nfts = await gameShiftService.fetchUserNFTs(walletAddress); // Gọi GameShift API
+    res.status(200).json({
+      message: "Danh sách NFT của người dùng:",
+      data: nfts,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách NFT của người dùng:", error.message);
+    res.status(500).json({
+      message: "Không thể lấy danh sách NFT của người dùng.",
+      error: error.message,
+    });
+  }
+};

@@ -82,32 +82,6 @@ export const createNFT = async (data, token) => {
     }
 };
 
-// Lấy danh sách NFT
-export const fetchNFTs = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/nft`);
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi khi lấy danh sách NFT:", error.response?.data?.message || error.message);
-        throw error;
-    }
-};
-
-// Rao bán NFT
-export const sellNFT = async (nftId, priceData, token) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/nft/sell/${nftId}`, priceData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi khi rao bán NFT:", error.response?.data?.message || error.message);
-        throw error;
-    }
-};
 
 // Hủy NFT Listing
 export const cancelNFTListing = async (nftId) => {
@@ -190,5 +164,51 @@ export const fetchPurchaseHistory = async (token) => {
     } catch (error) {
         console.error("Lỗi khi lấy lịch sử giao dịch:", error.response?.data || error.message);
         throw error;
+    }
+};
+
+// NFT USER
+export const fetchUserNFTs = async (token) => {
+    console.log("Token được sử dụng:", token); // Log token kiểm tra
+    try {
+        const response = await axios.get(`${API_BASE_URL}/nft/user-nfts`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        // Log dữ liệu trả về
+        console.log("Dữ liệu trả về từ API:", response.data);
+
+        // Truy cập dữ liệu bên trong `data.data`
+        if (!response.data || !response.data.data || !Array.isArray(response.data.data.data)) {
+            throw new Error("Dữ liệu trả về không hợp lệ");
+        }
+
+        return response.data.data.data; // Trả về mảng tài sản bên trong `data.data`
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách NFT:", error.response?.data?.message || error.message);
+        throw error;
+    }
+};
+
+
+
+// Rao bán NFT
+export const sellNFT = async (nftId, priceData) => {
+    try {
+        // Gửi yêu cầu POST tới backend để rao bán NFT
+        const response = await axios.post(
+            `${API_BASE_URL}/nft/sell/${nftId}`,
+            {
+                naturalAmount: priceData.naturalAmount, // Giá bán
+                currencyId: priceData.currencyId,      // Loại tiền tệ
+            }
+        );
+        console.log("Phản hồi từ API rao bán NFT:", response.data);
+        return response.data; // Trả về dữ liệu từ API
+    } catch (error) {
+        console.error("Lỗi khi rao bán NFT:", error.response?.data?.message || error.message);
+        throw error; // Quăng lỗi để xử lý ở phía giao diện
     }
 };

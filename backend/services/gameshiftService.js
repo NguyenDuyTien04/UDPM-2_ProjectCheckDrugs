@@ -348,3 +348,20 @@ exports.fetchTransactionById = async (transactionId) => {
     handleError(error);
   }
 };
+
+// Lấy danh sách NFT của người dùng qua `referenceId`
+exports.fetchUserNFTs = async (referenceId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/users/${referenceId}/items`, {
+      headers: {
+        accept: "application/json",
+        "x-api-key": API_KEY,
+      },
+    });
+
+    console.log("Phản hồi từ GameShift khi lấy danh sách NFT:", response.data);
+    return response.data; // Trả về dữ liệu từ API
+  } catch (error) {
+    handleError(error);
+  }
+};

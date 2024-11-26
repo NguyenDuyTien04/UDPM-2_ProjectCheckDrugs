@@ -20,6 +20,9 @@ function Navbar() {
           <Link to="/create-nft">Tạo NFT</Link>
         </li>
         <li>
+          <Link to="/nft-list">Danh sách NFT</Link>
+        </li>
+        <li>
           <Link to="/market">Chợ NFT</Link>
         </li>
         <li>

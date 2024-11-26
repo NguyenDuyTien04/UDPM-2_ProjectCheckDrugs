@@ -26,4 +26,8 @@ router.get('/for-sale', nftController.getNFTsForSale);
 
 // Route để lấy danh sách NFT trong một bộ sưu tập
 router.get('/collection', authMiddleware, nftController.getNFTsByCollection);
+
+// Route lấy danh sách NFT của người dùng
+router.get("/user-nfts", authMiddleware, nftController.getUserNFTs);
+
 module.exports = router;
