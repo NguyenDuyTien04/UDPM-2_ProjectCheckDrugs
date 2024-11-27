@@ -54,20 +54,19 @@ export const fetchCollections = async (token) => {
 
 
 // Tạo bộ sưu tập
-// Tạo bộ sưu tập
 export const createCollection = async (data, token) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/collections/create`, data, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi khi tạo bộ sưu tập:", error.response ? error.response.data : error.message);
-        throw error; // Ném lỗi lên trên để có thể xử lý trong frontend
-    }
+  try {
+    const response = await axios.post(`${API_BASE_URL}/collections/create`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi tạo bộ sưu tập:", error.response ? error.response.data : error.message);
+    throw error;
+  }
 };
 
 // Tạo NFT
