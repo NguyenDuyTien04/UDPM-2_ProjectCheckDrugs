@@ -23,11 +23,11 @@ const UserNFTs = () => {
             try {
                 const assets = await fetchUserNFTs(user.token); // Sử dụng token để lấy dữ liệu
                 console.log("Dữ liệu tài sản của người dùng:", assets);
-    
+
                 // Phân loại tài sản thành Currency và UniqueAsset
                 const currencyAssets = assets.filter((item) => item.type === "Currency");
                 const nftAssets = assets.filter((item) => item.type === "UniqueAsset");
-    
+
                 setCurrencies(currencyAssets);
                 setNFTs(nftAssets);
             } catch (error) {
@@ -42,17 +42,25 @@ const UserNFTs = () => {
     }, [user?.token]);
 
     const handleSellNFT = async () => {
+        console.log("Giá:", price, "Loại tiền:", currency, "NFT:", selectedNFT);
         if (!price || isNaN(price) || parseFloat(price) <= 0) {
             alert("Vui lòng nhập giá hợp lệ!");
             return;
         }
 
         try {
-            await sellNFT(
-                { assetId: selectedNFT.item.id, naturalAmount: price, currencyId: currency },
+            const response = await sellNFT(
+                {
+                    assetId: selectedNFT?.item?.id, // Đảm bảo `selectedNFT` có giá trị và lấy đúng `id`
+                    naturalAmount: price,
+                    currencyId: currency,
+                },
                 user.token
             );
             alert("NFT đã được rao bán thành công!");
+            if (response.sellResponse?.consentUrl) {
+                window.open(response.sellResponse.consentUrl, "_blank"); // Mở liên kết xác nhận
+            }
             setNFTs((prevNFTs) =>
                 prevNFTs.map((nft) =>
                     nft.item.id === selectedNFT.item.id
@@ -68,10 +76,11 @@ const UserNFTs = () => {
     };
 
     const openSellModal = (nft) => {
+        console.log("NFT được chọn để rao bán:", nft); // Kiểm tra giá trị NFT
         setSelectedNFT(nft);
-        setPrice("");
-        setCurrency("USDC");
-        setIsModalOpen(true);
+        setPrice(""); // Reset giá
+        setCurrency("USDC"); // Reset loại tiền tệ
+        setIsModalOpen(true); // Mở modal
     };
 
     const closeSellModal = () => {
