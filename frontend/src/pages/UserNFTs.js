@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { fetchUserNFTs, sellNFT } from "../services/api";
+import {
+    fetchUserNFTs,
+    sellNFT,
+    cancelNFTListing,
+    fetchNFTDetails,
+} from "../services/api";
 import { useUserContext } from "../context/UserContext"; // Lấy context
 import "./styles/UserNFTs.css";
 
@@ -9,9 +14,13 @@ const UserNFTs = () => {
     const [nfts, setNFTs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedNFT, setSelectedNFT] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [price, setPrice] = useState("");
     const [currency, setCurrency] = useState("USDC");
+    const [detailsLoading, setDetailsLoading] = useState(false);
+    const [nftDetails, setNFTDetails] = useState(null);
 
     useEffect(() => {
         if (!user?.token) {
@@ -21,15 +30,28 @@ const UserNFTs = () => {
 
         const loadUserNFTs = async () => {
             try {
-                const assets = await fetchUserNFTs(user.token); // Sử dụng token để lấy dữ liệu
+                const assets = await fetchUserNFTs(user.token);
                 console.log("Dữ liệu tài sản của người dùng:", assets);
 
-                // Phân loại tài sản thành Currency và UniqueAsset
                 const currencyAssets = assets.filter((item) => item.type === "Currency");
                 const nftAssets = assets.filter((item) => item.type === "UniqueAsset");
 
                 setCurrencies(currencyAssets);
-                setNFTs(nftAssets);
+
+                const updatedNFTs = await Promise.all(
+                    nftAssets.map(async (nft) => {
+                        const details = await fetchNFTDetails(nft.item.id, user.token);
+                        return {
+                            ...nft,
+                            item: {
+                                ...nft.item,
+                                forSale: details.data?.item?.forSale || false,
+                            },
+                        };
+                    })
+                );
+
+                setNFTs(updatedNFTs);
             } catch (error) {
                 console.error("Lỗi khi tải NFT:", error.message);
                 alert("Không thể tải tài sản của người dùng.");
@@ -51,7 +73,7 @@ const UserNFTs = () => {
         try {
             const response = await sellNFT(
                 {
-                    assetId: selectedNFT?.item?.id, // Đảm bảo `selectedNFT` có giá trị và lấy đúng `id`
+                    assetId: selectedNFT?.item?.id,
                     naturalAmount: price,
                     currencyId: currency,
                 },
@@ -59,8 +81,9 @@ const UserNFTs = () => {
             );
             alert("NFT đã được rao bán thành công!");
             if (response.sellResponse?.consentUrl) {
-                window.open(response.sellResponse.consentUrl, "_blank"); // Mở liên kết xác nhận
+                window.open(response.sellResponse.consentUrl, "_blank");
             }
+
             setNFTs((prevNFTs) =>
                 prevNFTs.map((nft) =>
                     nft.item.id === selectedNFT.item.id
@@ -68,6 +91,7 @@ const UserNFTs = () => {
                         : nft
                 )
             );
+
             closeSellModal();
         } catch (error) {
             console.error("Lỗi khi rao bán NFT:", error.message);
@@ -75,17 +99,84 @@ const UserNFTs = () => {
         }
     };
 
+    const handleWithdrawNFT = async () => {
+        if (!selectedNFT) return;
+
+        try {
+            const response = await cancelNFTListing(selectedNFT.item.id, user.token);
+            alert("NFT đã được thu hồi thành công!");
+
+            if (response.cancelResponse?.consentUrl) {
+                window.open(response.cancelResponse.consentUrl, "_blank");
+            }
+
+            setNFTs((prevNFTs) =>
+                prevNFTs.map((nft) =>
+                    nft.item.id === selectedNFT.item.id
+                        ? { ...nft, item: { ...nft.item, forSale: false } }
+                        : nft
+                )
+            );
+
+            closeWithdrawModal();
+        } catch (error) {
+            console.error("Lỗi khi thu hồi NFT:", error.message);
+            alert("Không thể thu hồi NFT. Vui lòng thử lại.");
+        }
+    };
+
+    const handleViewDetails = async (nftId) => {
+        setDetailsLoading(true);
+        setIsDetailsModalOpen(true);
+        try {
+            const response = await fetchNFTDetails(nftId, user.token);
+            console.log("Chi tiết NFT:", response.data);
+
+            const details = response.data?.item;
+            if (details) {
+                setNFTDetails({
+                    id: details.id,
+                    name: details.name,
+                    description: details.description,
+                    imageUrl: details.imageUrl,
+                    forSale: details.forSale,
+                    price: details.price?.naturalAmount
+                        ? `${details.price.naturalAmount} ${details.price.currencyId}`
+                        : "N/A",
+                    owner: details.owner?.address || "N/A",
+                    collection: details.collection?.name || "N/A",
+                });
+            } else {
+                setNFTDetails(null);
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy chi tiết NFT:", error.message);
+            alert("Không thể tải thông tin chi tiết NFT.");
+        } finally {
+            setDetailsLoading(false);
+        }
+    };
+
     const openSellModal = (nft) => {
-        console.log("NFT được chọn để rao bán:", nft); // Kiểm tra giá trị NFT
         setSelectedNFT(nft);
-        setPrice(""); // Reset giá
-        setCurrency("USDC"); // Reset loại tiền tệ
-        setIsModalOpen(true); // Mở modal
+        setPrice("");
+        setCurrency("USDC");
+        setIsSellModalOpen(true);
     };
 
     const closeSellModal = () => {
         setSelectedNFT(null);
-        setIsModalOpen(false);
+        setIsSellModalOpen(false);
+    };
+
+    const openWithdrawModal = (nft) => {
+        setSelectedNFT(nft);
+        setIsWithdrawModalOpen(true);
+    };
+
+    const closeWithdrawModal = () => {
+        setSelectedNFT(null);
+        setIsWithdrawModalOpen(false);
     };
 
     if (!user?.token) {
@@ -123,26 +214,54 @@ const UserNFTs = () => {
                             />
                             <h4>{nft.item.name || "Không có tên"}</h4>
                             <p>{nft.item.description || "Không có mô tả"}</p>
-                            <button className="btn-details">Xem chi tiết</button>
-                            <button
-                                className="btn-sell"
-                                onClick={() => openSellModal(nft)}
-                                disabled={nft.item.forSale}
-                            >
-                                {nft.item.forSale ? "Đã rao bán" : "Rao bán"}
-                            </button>
+                            <div className="nft-card-buttons">
+                                <button onClick={() => handleViewDetails(nft.item.id)}>
+                                    Xem Chi Tiết
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        nft.item.forSale
+                                            ? openWithdrawModal(nft) // Mở modal thu hồi nếu `forSale` là true
+                                            : openSellModal(nft) // Mở modal rao bán nếu `forSale` là false
+                                    }
+                                >
+                                    {nft.item.forSale ? "Thu Hồi" : "Rao Bán"}
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {isModalOpen && (
+            {isDetailsModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        {detailsLoading ? (
+                            <p>Đang tải chi tiết...</p>
+                        ) : nftDetails ? (
+                            <>
+                                <h3>{nftDetails.name}</h3>
+                                <img src={nftDetails.imageUrl} alt={nftDetails.name} />
+                                <p>{nftDetails.description}</p>
+                                <p>Giá: {nftDetails.price}</p>
+                                <p>Chủ sở hữu: {nftDetails.owner}</p>
+                                <p>Bộ sưu tập: {nftDetails.collection}</p>
+                                <button onClick={() => setIsDetailsModalOpen(false)}>Đóng</button>
+                            </>
+                        ) : (
+                            <p>Không thể hiển thị chi tiết NFT.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {isSellModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h3>Rao bán NFT</h3>
                         <p>Bạn đang rao bán NFT: "{selectedNFT?.item.name}"</p>
                         <label>
-                            Nhập giá bán:
+                            Giá:
                             <input
                                 type="number"
                                 value={price}
@@ -151,11 +270,8 @@ const UserNFTs = () => {
                             />
                         </label>
                         <label>
-                            Chọn loại tiền:
-                            <select
-                                value={currency}
-                                onChange={(e) => setCurrency(e.target.value)}
-                            >
+                            Loại tiền:
+                            <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
                                 <option value="USDC">USDC</option>
                                 <option value="SOL">SOL</option>
                             </select>
@@ -164,6 +280,21 @@ const UserNFTs = () => {
                             Xác nhận
                         </button>
                         <button className="btn-cancel" onClick={closeSellModal}>
+                            Hủy
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {isWithdrawModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Xác nhận thu hồi NFT</h3>
+                        <p>Bạn có chắc chắn muốn thu hồi NFT: "{selectedNFT?.item.name}"?</p>
+                        <button className="btn-confirm" onClick={handleWithdrawNFT}>
+                            Xác nhận
+                        </button>
+                        <button className="btn-cancel" onClick={closeWithdrawModal}>
                             Hủy
                         </button>
                     </div>

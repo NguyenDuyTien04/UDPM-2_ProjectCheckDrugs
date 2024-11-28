@@ -55,18 +55,18 @@ export const fetchCollections = async (token) => {
 
 // Tạo bộ sưu tập
 export const createCollection = async (data, token) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/collections/create`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Lỗi khi tạo bộ sưu tập:", error.response ? error.response.data : error.message);
-    throw error;
-  }
+    try {
+        const response = await axios.post(`${API_BASE_URL}/collections/create`, data, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi tạo bộ sưu tập:", error.response ? error.response.data : error.message);
+        throw error;
+    }
 };
 
 // Tạo NFT
@@ -87,16 +87,7 @@ export const createNFT = async (data, token) => {
 };
 
 
-// Hủy NFT Listing
-export const cancelNFTListing = async (nftId) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/nft/cancel/${nftId}`);
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi khi hủy NFT:", error.response?.data?.message || error.message);
-        throw error;
-    }
-};
+
 
 // Lấy danh sách NFT từ GameShift và lưu vào MongoDB (nếu chưa tồn tại)
 export const fetchGameShiftNFTs = async () => {
@@ -130,21 +121,6 @@ export const fetchMarketNFTs = async () => {
     }
 };
 
-// Lấy danh sách NFT trong một bộ sưu tập
-export const getNFTsByCollection = async (collectionId, token) => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/nft/collection`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            params: { collectionId },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Lỗi khi lấy danh sách NFT:", error.response?.data?.message || error.message);
-        throw error;
-    }
-};
 // Lấy lịch sử giao dịch của người dùng
 export const fetchPurchaseHistory = async (token) => {
     try {
@@ -184,6 +160,9 @@ export const fetchUserNFTs = async (token) => {
         throw error;
     }
 };
+
+
+
 export const sellNFT = async ({ assetId, naturalAmount, currencyId }, token) => {
     try {
         const response = await axios.post(
@@ -209,26 +188,77 @@ export const sellNFT = async ({ assetId, naturalAmount, currencyId }, token) => 
 export const buyNFT = async (nftId) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("Token không tồn tại. Không thể thực hiện giao dịch.");
-      throw new Error("Token không tồn tại.");
+        console.error("Token không tồn tại. Không thể thực hiện giao dịch.");
+        throw new Error("Token không tồn tại.");
     }
-  
+
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/nft/buy/${nftId}`,
-        {}, // Body để trống nếu không có dữ liệu
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Gửi token qua headers
-          },
-        }
-      );
-      return response.data;
+        const response = await axios.post(
+            `${API_BASE_URL}/nft/buy/${nftId}`,
+            {}, // Body để trống nếu không có dữ liệu
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Gửi token qua headers
+                },
+            }
+        );
+        return response.data;
     } catch (error) {
-      console.error(
-        "Lỗi khi mua NFT:",
-        error.response?.data?.message || error.message
-      );
-      throw error;
+        console.error(
+            "Lỗi khi mua NFT:",
+            error.response?.data?.message || error.message
+        );
+        throw error;
     }
-  };
+};
+// / Lấy danh sách NFT từ Collection ID
+export const fetchNFTsByCollection = async (collectionId, token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/nft/${collectionId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data; // Trả về dữ liệu
+    } catch (error) {
+        console.error(
+            "Lỗi khi lấy danh sách NFT:",
+            error.response?.data?.message || error.message
+        );
+        throw error;
+    }
+};
+// API: Lấy thông tin chi tiết NFT
+export const fetchNFTDetails = async (nftId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/nft/details/${nftId}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy thông tin chi tiết NFT:", error.response?.data?.message || error.message);
+        throw error;
+    }
+};
+export const cancelNFTListing = async (nftId, token) => {
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/nft/cancel/${nftId}`, // Đường dẫn API
+            {}, // Body rỗng nếu không cần
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Đính kèm token
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(
+            "Lỗi khi hủy NFT:",
+            error.response?.data?.message || error.message
+        );
+        throw error;
+    }
+};

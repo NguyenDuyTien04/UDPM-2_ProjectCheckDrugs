@@ -61,8 +61,6 @@ exports.createNFT = async (req, res) => {
   }
 };
 
-
-
 exports.getAllNFTs = async (req, res) => {
   try {
     const nfts = await NFT.find(); // Chỉ trả về danh sách ID
@@ -136,37 +134,55 @@ exports.getNFTsForSale = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách NFT đang được rao bán.', error: error.message });
   }
 };
-
+// Controller để thu hồi NFT
 exports.cancelNFTListing = async (req, res) => {
   const { id } = req.params; // NFT ID từ URL
 
   try {
-    // Kiểm tra NFT trong cơ sở dữ liệu
+    console.log("NFT ID nhận được:", id);
+
+    // Kiểm tra NFT trong cơ sở dữ liệu (chỉ kiểm tra sự tồn tại của ID)
     const nft = await NFT.findOne({ gameShiftNFTId: id });
 
     if (!nft) {
-      return res.status(404).json({ message: 'NFT không tồn tại trong hệ thống.' });
+      return res.status(404).json({ message: "NFT không tồn tại trong hệ thống." });
     }
 
-    if (!nft.forSale) {
-      return res.status(400).json({ message: 'NFT này không được rao bán.' });
-    }
-
-    // Gọi API GameShift để thu hồi
+    // Gọi API GameShift để thu hồi NFT
     const cancelResponse = await gameShiftService.cancelNFTListing(id);
-
-    // Cập nhật trạng thái trong MongoDB
-    nft.forSale = false;
-    await nft.save();
+    console.log("Phản hồi từ GameShift khi thu hồi:", cancelResponse);
 
     res.status(200).json({
-      message: 'NFT đã được thu hồi khỏi chợ thành công!',
-      nft,
+      message: "NFT đã được thu hồi khỏi chợ thành công!",
+      nft: { gameShiftNFTId: id },
       cancelResponse,
     });
   } catch (error) {
-    console.error('Lỗi khi thu hồi NFT:', error.message);
-    res.status(500).json({ message: 'Lỗi khi thu hồi NFT.', error: error.message });
+    console.error("Lỗi khi thu hồi NFT:", error.message);
+    res.status(500).json({ message: "Lỗi khi thu hồi NFT.", error: error.message });
+  }
+};
+
+// Controller để lấy thông tin chi tiết của NFT
+exports.getNFTDetails = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!id) {
+      return res.status(400).json({ message: 'NFT ID không được cung cấp.' });
+    }
+
+    // Gọi hàm từ service để lấy chi tiết NFT
+    const nftDetails = await gameShiftService.getNFTDetails(id);
+
+    // Phản hồi kết quả
+    return res.status(200).json({
+      message: 'Lấy thông tin chi tiết NFT thành công!',
+      data: nftDetails,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy thông tin chi tiết NFT:', error.message);
+    return res.status(500).json({ message: 'Không thể lấy thông tin chi tiết NFT.', error: error.message });
   }
 };
 
@@ -313,5 +329,46 @@ exports.getUserNFTs = async (req, res) => {
       message: "Không thể lấy danh sách NFT của người dùng.",
       error: error.message,
     });
+  }
+};
+// Lấy nft trong bộ sưu tập
+exports.getNFTsByCollection = async (req, res) => {
+  const { collectionId } = req.params;
+
+  try {
+    if (!collectionId) {
+      return res.status(400).json({ message: "Thiếu collectionId" });
+    }
+
+    const nfts = await gameShiftService.getNFTsByCollection(collectionId);
+
+    res.status(200).json({
+      message: "Danh sách NFT trong bộ sưu tập",
+      data: nfts,
+    });
+  } catch (error) {
+    console.error("Lỗi trong NFT Controller:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+// Controller để lấy danh sách NFT của người dùng
+const getUserNFTs = async (req, res) => {
+  try {
+    // Lấy `walletAddress` từ token (authMiddleware gán vào req.user)
+    const walletAddress = req.user.walletAddress;
+    if (!walletAddress) {
+      return res.status(400).json({ message: "Wallet address không tồn tại." });
+    }
+
+    // Gọi service để lấy danh sách NFT
+    const items = await gameShiftService.getUserItems(walletAddress);
+
+    return res.status(200).json({
+      message: "Lấy danh sách NFT thành công!",
+      data: items,
+    });
+  } catch (error) {
+    console.error("Lỗi trong getUserNFTs:", error.message);
+    return res.status(500).json({ message: error.message });
   }
 };

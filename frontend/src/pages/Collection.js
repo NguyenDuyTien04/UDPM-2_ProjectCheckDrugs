@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   fetchCollections,
   createCollection,
-  getNFTsByCollection,
+  fetchNFTsByCollection,
 } from "../services/api";
 import { useUserContext } from "../context/UserContext";
 import "./styles/Collection.css";
@@ -48,10 +48,11 @@ const Collections = () => {
   // Lấy danh sách NFT của bộ sưu tập
   const fetchNFTs = async (collectionId) => {
     try {
+      console.log("Đang lấy danh sách NFT cho Collection ID:", collectionId); // Thêm log để kiểm tra ID
       if (!user?.token) throw new Error("Token không tồn tại.");
-      const response = await getNFTsByCollection(collectionId, user.token);
+      const response = await fetchNFTsByCollection(collectionId, user.token);
       console.log("Danh sách NFT nhận được:", response);
-      setNFTs(response.nfts || []);
+      setNFTs(response.data?.data || []);
       setCurrentCollectionId(collectionId);
       setShowNFTPopup(true);
     } catch (error) {
@@ -113,7 +114,7 @@ const Collections = () => {
               <h3>{collection.name || "Không có tên"}</h3>
               <p>{collection.description || "Không có mô tả"}</p>
               <button
-                onClick={() => fetchNFTs(collection._id)}
+                onClick={() => fetchNFTs(collection.gameShiftCollectionId)}
                 className="btn-detail"
               >
                 Xem chi tiết
@@ -162,20 +163,29 @@ const Collections = () => {
         </div>
       )}
 
-      {/* Popup hiển thị danh sách NFT */}
-      {showNFTPopup && (
+       {/* Popup hiển thị danh sách NFT */}
+       {showNFTPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Danh sách NFT trong Bộ Sưu Tập</h3>
             <button onClick={() => setShowNFTPopup(false)}>Đóng</button>
             <div className="nft-list">
-              {nfts.map((nft) => (
-                <div key={nft._id} className="nft-card">
-                  <img src={nft.imageUrl} alt={nft.name} />
-                  <h4>{nft.name}</h4>
-                  <p>{nft.description}</p>
-                </div>
-              ))}
+              {nfts.length > 0 ? (
+                nfts.map((nft) => (
+                  <div key={nft.item.id} className="nft-card">
+                    <img
+                      src={nft.item.imageUrl || "placeholder-image.jpg"}
+                      alt={nft.item.name || "NFT"}
+                      className="nft-image"
+                    />
+                    <h4>{nft.item.name || "Không có tên"}</h4>
+                    <p>{nft.item.description || "Không có mô tả"}</p>
+                    <p>Chủ sở hữu: {nft.item.owner?.address || "Không xác định"}</p>
+                  </div>
+                ))
+              ) : (
+                <p>Không có NFT nào trong bộ sưu tập này.</p>
+              )}
             </div>
           </div>
         </div>
