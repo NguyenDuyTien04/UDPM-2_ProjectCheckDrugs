@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  fetchCollections,
-  createCollection,
-  fetchNFTsByCollection,
-} from "../services/api";
+import { createCollection, fetchCollections, fetchNFTsByCollection } from "../services/api";
 import { useUserContext } from "../context/UserContext";
 import "./styles/Collection.css";
 
@@ -21,37 +17,45 @@ const Collections = () => {
     image: "",
   });
 
+  // Phân trang: Trạng thái của trang hiện tại và số NFT mỗi trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nftsPerPage, setNftsPerPage] = useState(3); // Số NFT hiển thị trên mỗi trang
+
+  // Tính toán chỉ số NFT đầu và cuối của trang hiện tại
+  const totalItems = nfts.length;
+  const totalPages = Math.ceil(totalItems / nftsPerPage);
+  const indexOfLastNFT = currentPage * nftsPerPage;
+  const indexOfFirstNFT = indexOfLastNFT - nftsPerPage;
+  const currentNFTs = nfts.slice(indexOfFirstNFT, indexOfLastNFT);
+
+
+  
+  // Lấy danh sách bộ sưu tập
   useEffect(() => {
     const loadCollections = async () => {
-        setLoading(true);
-        try {
-            if (!user?.token) throw new Error("Token không tồn tại.");
-            
-            // Gọi API để lấy danh sách bộ sưu tập
-            const collectionsData = await fetchCollections(user.token);
-            
-            console.log("Danh sách bộ sưu tập nhận được:", collectionsData);
-
-            // Gán danh sách bộ sưu tập vào state
-            setCollections(collectionsData);
-        } catch (error) {
-            console.error("Lỗi khi tải danh sách bộ sưu tập:", error.message);
-            alert("Không thể tải danh sách bộ sưu tập.");
-        } finally {
-            setLoading(false);
-        }
+      setLoading(true);
+      try {
+        if (!user?.token) throw new Error("Token không tồn tại.");
+        
+        // Gọi API để lấy danh sách bộ sưu tập
+        const collectionsData = await fetchCollections(user.token);
+        setCollections(collectionsData);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách bộ sưu tập:", error.message);
+        alert("Không thể tải danh sách bộ sưu tập.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadCollections();
-}, [user?.token]);
+  }, [user?.token]);
 
   // Lấy danh sách NFT của bộ sưu tập
   const fetchNFTs = async (collectionId) => {
     try {
-      console.log("Đang lấy danh sách NFT cho Collection ID:", collectionId); // Thêm log để kiểm tra ID
       if (!user?.token) throw new Error("Token không tồn tại.");
       const response = await fetchNFTsByCollection(collectionId, user.token);
-      console.log("Danh sách NFT nhận được:", response);
       setNFTs(response.data?.data || []);
       setCurrentCollectionId(collectionId);
       setShowNFTPopup(true);
@@ -91,6 +95,21 @@ const Collections = () => {
     }
   };
 
+
+  // Hàm chuyển trang tiếp theo
+  const nextPage = () => {
+    if (currentPage < Math.ceil(nfts.length / nftsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Hàm chuyển trang trước
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="collections">
       <h2>Danh sách Bộ Sưu Tập</h2>
@@ -124,8 +143,9 @@ const Collections = () => {
         </div>
       )}
 
-       {/* Popup để tạo bộ sưu tập */}
-       {showCollectionPopup && (
+     
+      {/* Popup để tạo bộ sưu tập */}
+      {showCollectionPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Tạo Bộ Sưu Tập Mới</h3>
@@ -140,18 +160,14 @@ const Collections = () => {
               <textarea
                 placeholder="Mô tả"
                 value={newCollectionData.description}
-                onChange={(e) =>
-                  setNewCollectionData({ ...newCollectionData, description: e.target.value })
-                }
+                onChange={(e) => setNewCollectionData({ ...newCollectionData, description: e.target.value })}
                 required
               ></textarea>
               <input
                 type="text"
                 placeholder="URL Hình Ảnh"
-                value={newCollectionData.imageUrl}
-                onChange={(e) =>
-                  setNewCollectionData({ ...newCollectionData, image: e.target.value })
-                }
+                value={newCollectionData.image}
+                onChange={(e) => setNewCollectionData({ ...newCollectionData, image: e.target.value })}
                 required
               />
               <button type="submit">Tạo</button>
@@ -159,24 +175,24 @@ const Collections = () => {
                 Hủy
               </button>
             </form>
+            
           </div>
         </div>
       )}
 
-       {/* Popup hiển thị danh sách NFT */}
-       {showNFTPopup && (
+      {/* Popup hiển thị danh sách NFT */}
+      {showNFTPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Danh sách NFT trong Bộ Sưu Tập</h3>
             <button onClick={() => setShowNFTPopup(false)}>Đóng</button>
             <div className="nft-list">
-              {nfts.length > 0 ? (
-                nfts.map((nft) => (
+              {currentNFTs.length > 0 ? (
+                currentNFTs.map((nft) => (
                   <div key={nft.item.id} className="nft-card">
                     <img
                       src={nft.item.imageUrl || "placeholder-image.jpg"}
                       alt={nft.item.name || "NFT"}
-                      className="nft-image"
                     />
                     <h4>{nft.item.name || "Không có tên"}</h4>
                     <p>{nft.item.description || "Không có mô tả"}</p>
@@ -187,6 +203,20 @@ const Collections = () => {
                 <p>Không có NFT nào trong bộ sưu tập này.</p>
               )}
             </div>
+             {/* Điều khiển phân trang */}
+            <div className="pagination">
+              <button onClick={prevPage} disabled={currentPage === 1}>
+                Trang trước
+              </button>
+              <span className="current-page">Trang {currentPage}/{totalPages}</span>
+              <button
+                onClick={nextPage}
+                disabled={currentPage === Math.ceil(nfts.length / nftsPerPage)}
+              >
+                Trang sau
+              </button>
+            </div>
+
           </div>
         </div>
       )}

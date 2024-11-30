@@ -16,11 +16,11 @@ function Navbar() {
         <li>
           <Link to="/collections">Bộ sưu tập</Link>
         </li>
-        <li>
+        {/* <li>
           <Link to="/create-nft">Tạo NFT</Link>
-        </li>
+        </li> */}
         <li>
-          <Link to="/nft-list">Danh sách NFT</Link>
+          <Link to="/nft-list">NFT</Link>
         </li>
         <li>
           <Link to="/market">Chợ NFT</Link>

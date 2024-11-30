@@ -1,76 +1,188 @@
+/* Tổng quan */
 .user-nfts-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .currency-section, .nft-section {
-    margin-bottom: 40px;
-  }
-  
-  .currency-list, .nft-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .currency-card, .nft-card {
-    width: calc(33.333% - 20px);
-    background: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-    text-align: center;
-    padding: 10px;
-  }
-  
-  .currency-card h4, .nft-card h4 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
-  }
-  
-  .nft-card img {
-    max-width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .btn-buy {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .btn-buy:hover {
-    background-color: #0056b3;
-  }
-  
-  p {
-    margin: 8px 0;
-  }
-  .nft-card-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #121212;
+  border-radius: 20px;
+  box-shadow: 0 4px 40px rgba(0, 255, 255, 0.3);
 }
 
+/* Các phần của NFT */
+.currency-section, .nft-section {
+  margin-bottom: 60px;
+  position: relative;
+}
+
+/* Danh sách tiền tệ và NFT */
+.currency-list, .nft-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+/* Card tiền tệ và NFT */
+.currency-card, .nft-card {
+  width: calc(33.333% - 20px);
+  background: #212121;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.3), 0 0 50px rgba(0, 255, 255, 0.4);
+  border-radius: 20px;
+  overflow: hidden;
+  text-align: center;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.currency-card:hover, .nft-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 40px rgba(0, 255, 255, 0.6);
+}
+
+/* Tiêu đề các card */
+.currency-card h4, .nft-card h4 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #ffd700; /* Màu vàng neon cho tiêu đề */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700;
+}
+
+/* Hình ảnh trong card NFT */
+.nft-card img {
+  max-width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.nft-card img:hover {
+  transform: scale(1.05) rotate(5deg);
+  filter: brightness(1.1);
+}
+
+/* Nội dung NFT */
+.market-card h4 {
+  font-size: 1.5rem;
+  color: #ffd700;
+  margin: 12px 0;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.market-card p {
+  font-size: 1rem;
+  color: #ccc;
+  margin: 5px 0;
+  transition: color 0.3s ease;
+}
+
+.market-card p:nth-of-type(2) {
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.market-card:hover p {
+  color: #ffd700;
+}
+
+/* Nút Mua trong card NFT */
+.btn-buy {
+  background-color: #00bcd4;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-buy:hover {
+  background-color: #0097a7;
+  transform: scale(1.05);
+}
+
+.btn-buy:active {
+  transform: scale(0.95);
+}
+
+/* Các đoạn văn bản thông tin trong card */
+p {
+  margin: 8px 0;
+  color: #ccc;
+}
+
+/* Các nút trong NFT Card (Phần buttons) */
+.nft-card-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+/* Nút trong phần buttons (Confirm, Buy) */
 .nft-card-buttons button {
-    flex: 1;
-    margin: 0 5px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: center;
+  flex: 1;
+  margin: 0 5px;
+  background-color: #ffd700;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 50px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .nft-card-buttons button:hover {
-    background-color: #0056b3;
+  background-color: #0097a7;
+  transform: scale(1.05);
+}
+
+.nft-card-buttons button:active {
+  transform: scale(0.95);
+}
+
+/* Tiêu đề chính và các nút trong UserNFTs */
+h2 {
+  font-size: 2.5rem;
+  color: #ffd700;
+  text-shadow: 0 0 30px #ffd700, 0 0 60px #ffd700, 0 0 100px #ffd700;
+}
+
+h3 {
+  font-size: 1.8rem;
+  color: #ffd700;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 3px solid #ffd700;
+  padding-bottom: 10px;
+}
+
+button {
+  background-color: #00bcd4;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+  background-color: #0097a7;
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.95);
 }
