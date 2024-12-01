@@ -1,0 +1,76 @@
+.user-nfts-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .currency-section, .nft-section {
+    margin-bottom: 40px;
+  }
+  
+  .currency-list, .nft-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .currency-card, .nft-card {
+    width: calc(33.333% - 20px);
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .currency-card h4, .nft-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  
+  .nft-card img {
+    max-width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .btn-buy {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .btn-buy:hover {
+    background-color: #0056b3;
+  }
+  
+  p {
+    margin: 8px 0;
+  }
+  .nft-card-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.nft-card-buttons button {
+    flex: 1;
+    margin: 0 5px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.nft-card-buttons button:hover {
+    background-color: #0056b3;
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createCertificateNFT, createMedicineNFT, fetchCollections } from '../services/api';
+import { createNFT, fetchCollections } from '../services/api';
 import { useUserContext } from '../context/UserContext';
 import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
@@ -41,9 +41,19 @@ const CreateNFT = () => {
           position: 'top-center',
         });
       }
-    };
+    } catch (err) {
+      console.error('Lỗi khi tải danh sách bộ sưu tập NFT:', err.message);
+      setError(err.message);
+      toast.error('Không thể tải danh sách bộ sưu tập NFT.', {
+        position: 'top-center',
+      });
+    }
+  };
 
-    fetchUserCollections();
+  useEffect(() => {
+    if (user.token) {
+      fetchNFTCollections(user.token);
+    }
   }, [user.token]);
 
   const handleChange = (e) => {
@@ -76,6 +86,25 @@ const CreateNFT = () => {
       setSelectedImage(file);
       setImagePreview(URL.createObjectURL(file)); // Tạo đường dẫn xem trước
     }
+  };
+
+  const handleImageUrlBlur = () => {
+    if (formData.imageUrl.trim() === '') return;
+
+    const image = new Image();
+    image.src = formData.imageUrl;
+
+    image.onload = () => {
+      setImagePreview(formData.imageUrl);
+      toast.success('URL ảnh hợp lệ!', { position: 'top-center' });
+    };
+
+    image.onerror = () => {
+      setImagePreview('');
+      toast.error('URL ảnh không hợp lệ hoặc không thể tải ảnh.', {
+        position: 'top-center',
+      });
+    };
   };
 
   const handleSubmit = async (e) => {
@@ -138,7 +167,15 @@ const CreateNFT = () => {
       <h2>Tạo NFT</h2>
       <form onSubmit={handleSubmit}>
         <label>Loại NFT:</label>
-        <select value={type} onChange={(e) => setType(e.target.value)}>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          required
+        >
+          <option value="" disabled>
+            Chọn loại NFT
+          </option>
           <option value="certificate">Giấy chứng nhận</option>
           <option value="medicine">Thuốc</option>
         </select>
@@ -220,11 +257,14 @@ const CreateNFT = () => {
           name="collectionId"
           value={formData.collectionId}
           onChange={handleChange}
+          required
         >
-          <option value="">Chọn bộ sưu tập</option>
+          <option value="" disabled>
+            Chọn bộ sưu tập
+          </option>
           {collections.map((collection) => (
-            <option key={collection._id} value={collection._id}>
-              {collection.name}
+            <option key={collection.id} value={collection.gameShiftCollectionId}>
+              {collection.name || 'Tên không xác định'}
             </option>
           ))}
         </select>

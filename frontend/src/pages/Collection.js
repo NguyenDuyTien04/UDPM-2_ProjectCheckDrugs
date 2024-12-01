@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchCollections, createCollection, getNFTsByCollection, sellNFT } from "../services/api";
+import {
+  fetchCollections,
+  createCollection,
+  fetchNFTsByCollection,
+} from "../services/api";
 import { useUserContext } from "../context/UserContext";
 import "./styles/Collection.css";
 
@@ -11,75 +15,79 @@ const Collections = () => {
   const [showNFTPopup, setShowNFTPopup] = useState(false);
   const [currentCollectionId, setCurrentCollectionId] = useState(null);
   const [nfts, setNFTs] = useState([]);
-  const [selectedNFT, setSelectedNFT] = useState(null); // Lưu NFT đang chọn để rao bán
-  const [showSellModal, setShowSellModal] = useState(false); // Modal xác nhận rao bán
-  const [sellPrice, setSellPrice] = useState(""); // Giá bán
-  const [sellCurrency, setSellCurrency] = useState("SOL"); // Loại tiền tệ
   const [newCollectionData, setNewCollectionData] = useState({
     name: "",
     description: "",
-    imageUrl: "",
+    image: "",
   });
 
-  // Fetch collections
   useEffect(() => {
     const loadCollections = async () => {
-      try {
-        console.log("Token đang được gửi:", user.token);
-        const data = await fetchCollections(user.token); // Gọi API
-        setCollections(data.data);
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách bộ sưu tập:", error.response || error.message);
-        alert("Lỗi khi tải danh sách bộ sưu tập.");
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    loadCollections();
-  }, [user.token]);
+        setLoading(true);
+        try {
+            if (!user?.token) throw new Error("Token không tồn tại.");
+            
+            // Gọi API để lấy danh sách bộ sưu tập
+            const collectionsData = await fetchCollections(user.token);
+            
+            console.log("Danh sách bộ sưu tập nhận được:", collectionsData);
 
-  // Fetch NFTs in a collection
+            // Gán danh sách bộ sưu tập vào state
+            setCollections(collectionsData);
+        } catch (error) {
+            console.error("Lỗi khi tải danh sách bộ sưu tập:", error.message);
+            alert("Không thể tải danh sách bộ sưu tập.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    loadCollections();
+}, [user?.token]);
+
+  // Lấy danh sách NFT của bộ sưu tập
   const fetchNFTs = async (collectionId) => {
     try {
-      const data = await getNFTsByCollection(collectionId, user.token);
-      setNFTs(data.data);
+      console.log("Đang lấy danh sách NFT cho Collection ID:", collectionId); // Thêm log để kiểm tra ID
+      if (!user?.token) throw new Error("Token không tồn tại.");
+      const response = await fetchNFTsByCollection(collectionId, user.token);
+      console.log("Danh sách NFT nhận được:", response);
+      setNFTs(response.data?.data || []);
       setCurrentCollectionId(collectionId);
       setShowNFTPopup(true);
     } catch (error) {
-      alert("Lỗi khi tải danh sách NFT.");
+      console.error("Lỗi khi tải danh sách NFT:", error.message);
+      alert("Không thể tải danh sách NFT.");
     }
   };
 
-  // Create a new collection
+  // Tạo bộ sưu tập mới
   const handleCreateCollection = async (e) => {
     e.preventDefault();
     try {
-      await createCollection(newCollectionData, user.token);
-      alert("Tạo bộ sưu tập thành công!");
-      setShowCollectionPopup(false);
-      const data = await fetchCollections(user.token); // Refresh collections
-      setCollections(data.data);
-    } catch (error) {
-      alert("Lỗi khi tạo bộ sưu tập. Vui lòng thử lại.");
-    }
-  };
-
-  // Rao bán NFT
-  const handleSellNFT = async () => {
-    try {
-      if (!selectedNFT || !sellPrice || parseFloat(sellPrice) <= 0) {
-        alert("Vui lòng nhập giá bán hợp lệ.");
+      if (!user?.token) throw new Error("Token không tồn tại.");
+      if (
+        !newCollectionData.name.trim() ||
+        !newCollectionData.description.trim() ||
+        !newCollectionData.image.trim()
+      ) {
+        alert("Vui lòng nhập đầy đủ tên, mô tả và URL hình ảnh.");
         return;
       }
-      await sellNFT(selectedNFT._id, sellPrice, sellCurrency, user.token);
-      alert(`NFT "${selectedNFT.name}" đã được rao bán thành công!`);
-      setShowSellModal(false);
-      setSellPrice("");
-      setSellCurrency("SOL");
+
+      console.log("Dữ liệu gửi tạo bộ sưu tập:", newCollectionData);
+      const response = await createCollection(newCollectionData, user.token);
+      alert(`Tạo bộ sưu tập "${response.name}" thành công!`);
+      setShowCollectionPopup(false);
+
+      // Tải lại danh sách bộ sưu tập
+      const collectionsResponse = await fetchCollections(user.token);
+      setCollections(collectionsResponse.data || []);
     } catch (error) {
-      console.error("Lỗi khi rao bán NFT:", error);
-      alert("Lỗi khi rao bán NFT. Vui lòng thử lại.");
+      console.error("Lỗi khi tạo bộ sưu tập:", error.message);
+      alert("Không thể tạo bộ sưu tập. Vui lòng thử lại.");
+    } finally {
+      setNewCollectionData({ name: "", description: "", imageUrl: "" });
     }
   };
 
@@ -90,15 +98,25 @@ const Collections = () => {
         Tạo Bộ Sưu Tập
       </button>
       {loading ? (
-        <p>Đang tải...</p>
+        <p>Đang tải danh sách bộ sưu tập...</p>
+      ) : collections.length === 0 ? (
+        <p>Hiện không có bộ sưu tập nào. Hãy tạo một bộ sưu tập mới!</p>
       ) : (
         <div className="collection-list">
           {collections.map((collection) => (
             <div key={collection._id} className="collection-card">
-              <img src={collection.imageUrl} alt={collection.name} />
-              <h3>{collection.name}</h3>
-              <p>{collection.description}</p>
-              <button onClick={() => fetchNFTs(collection._id)} className="btn-detail">
+              <img
+                src={collection.imageUrl || "placeholder-image-url.jpg"}
+                alt={collection.name || "Không có tên"}
+                className="collection-image"
+                onError={(e) => (e.target.src = "placeholder-image-url.jpg")}
+              />
+              <h3>{collection.name || "Không có tên"}</h3>
+              <p>{collection.description || "Không có mô tả"}</p>
+              <button
+                onClick={() => fetchNFTs(collection.gameShiftCollectionId)}
+                className="btn-detail"
+              >
                 Xem chi tiết
               </button>
             </div>
@@ -106,8 +124,8 @@ const Collections = () => {
         </div>
       )}
 
-      {/* Popup để tạo bộ sưu tập */}
-      {showCollectionPopup && (
+       {/* Popup để tạo bộ sưu tập */}
+       {showCollectionPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Tạo Bộ Sưu Tập Mới</h3>
@@ -132,74 +150,43 @@ const Collections = () => {
                 placeholder="URL Hình Ảnh"
                 value={newCollectionData.imageUrl}
                 onChange={(e) =>
-                  setNewCollectionData({ ...newCollectionData, imageUrl: e.target.value })
+                  setNewCollectionData({ ...newCollectionData, image: e.target.value })
                 }
                 required
               />
               <button type="submit">Tạo</button>
-              <button onClick={() => setShowCollectionPopup(false)}>Hủy</button>
+              <button type="button" onClick={() => setShowCollectionPopup(false)}>
+                Hủy
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Popup hiển thị danh sách NFT */}
-      {showNFTPopup && (
+       {/* Popup hiển thị danh sách NFT */}
+       {showNFTPopup && (
         <div className="popup">
           <div className="popup-content">
             <h3>Danh sách NFT trong Bộ Sưu Tập</h3>
             <button onClick={() => setShowNFTPopup(false)}>Đóng</button>
             <div className="nft-list">
-              {nfts.map((nft) => (
-                <div key={nft._id} className="nft-card">
-                  <img src={nft.imageUrl} alt={nft.name} />
-                  <h4>{nft.name}</h4>
-                  <p>{nft.description}</p>
-                  <button
-                    onClick={() => {
-                      setSelectedNFT(nft);
-                      setShowSellModal(true);
-                    }}
-                    className="btn-sell"
-                  >
-                    Rao Bán
-                  </button>
-                </div>
-              ))}
+              {nfts.length > 0 ? (
+                nfts.map((nft) => (
+                  <div key={nft.item.id} className="nft-card">
+                    <img
+                      src={nft.item.imageUrl || "placeholder-image.jpg"}
+                      alt={nft.item.name || "NFT"}
+                      className="nft-image"
+                    />
+                    <h4>{nft.item.name || "Không có tên"}</h4>
+                    <p>{nft.item.description || "Không có mô tả"}</p>
+                    <p>Chủ sở hữu: {nft.item.owner?.address || "Không xác định"}</p>
+                  </div>
+                ))
+              ) : (
+                <p>Không có NFT nào trong bộ sưu tập này.</p>
+              )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal xác nhận rao bán */}
-      {showSellModal && selectedNFT && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Rao Bán NFT</h3>
-            <img src={selectedNFT.imageUrl} alt={selectedNFT.name} />
-            <p>Tên: {selectedNFT.name}</p>
-            <p>Mô tả: {selectedNFT.description}</p>
-            <input
-              type="number"
-              placeholder="Nhập giá bán"
-              value={sellPrice}
-              onChange={(e) => setSellPrice(e.target.value)}
-              required
-            />
-            <select
-              value={sellCurrency}
-              onChange={(e) => setSellCurrency(e.target.value)}
-              className="currency-selector"
-            >
-              <option value="SOL">SOL</option>
-              <option value="USDC">USDC</option>
-            </select>
-            <button onClick={handleSellNFT} className="btn-confirm">
-              Đồng ý
-            </button>
-            <button onClick={() => setShowSellModal(false)} className="btn-cancel">
-              Hủy
-            </button>
           </div>
         </div>
       )}

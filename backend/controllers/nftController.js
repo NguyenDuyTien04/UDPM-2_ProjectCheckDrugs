@@ -3,26 +3,40 @@ const Transaction = require('../models/Transaction');
 const gameShiftService = require('../services/gameshiftService');
 
 exports.createNFT = async (req, res) => {
-  const { collectionId, description, name, imageUrl } = req.body;
+  const { collectionId, description, name, imageUrl, type } = req.body;
 
   // Kiểm tra các trường bắt buộc
-  if (!collectionId || !description || !name || !imageUrl) {
+  if (!collectionId || !description || !name || !imageUrl || !type) {
     return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo NFT.' });
   }
 
   try {
+    // Kiểm tra nếu `req.user.walletAddress` tồn tại
+    if (!req.user || !req.user.walletAddress) {
+      return res.status(400).json({
+        message: 'Không tìm thấy địa chỉ ví người dùng (destinationUserReferenceId).',
+      });
+    }
+
     // Chuẩn bị payload gửi lên GameShift API
     const nftData = {
       details: {
+        attributes: [
+          {
+            traitType: 'type',
+            value: type, // Thêm type vào NFT
+          },
+        ],
         collectionId,
         description,
         name,
         imageUrl,
       },
-      destinationUserReferenceId: req.user.walletAddress, // Lấy từ payload JWT
+      destinationUserReferenceId: req.user.walletAddress, // Địa chỉ ví của người dùng
     };
 
-    console.log('Payload gửi lên GameShift:', nftData);
+    console.log('--- Payload gửi lên GameShift ---');
+    console.log(JSON.stringify(nftData, null, 2));
 
     // Gọi GameShift API để tạo NFT
     const gameShiftResponse = await gameShiftService.createNFT(nftData);
@@ -38,11 +52,11 @@ exports.createNFT = async (req, res) => {
     await newNFT.save();
 
     res.status(201).json({
-      message: 'NFT giấy chứng nhận được tạo thành công!',
+      message: 'NFT được tạo thành công!',
       nftId: newNFT.gameShiftNFTId,
     });
   } catch (error) {
-    console.error('Lỗi khi tạo NFT:', error.message);
+    console.error('--- Lỗi khi tạo NFT ---', error.message);
     res.status(500).json({ message: 'Lỗi khi tạo NFT.', error: error.message });
   }
 };
@@ -120,37 +134,55 @@ exports.getNFTsForSale = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách NFT đang được rao bán.', error: error.message });
   }
 };
-
+// Controller để thu hồi NFT
 exports.cancelNFTListing = async (req, res) => {
   const { id } = req.params; // NFT ID từ URL
 
   try {
-    // Kiểm tra NFT trong cơ sở dữ liệu
+    console.log("NFT ID nhận được:", id);
+
+    // Kiểm tra NFT trong cơ sở dữ liệu (chỉ kiểm tra sự tồn tại của ID)
     const nft = await NFT.findOne({ gameShiftNFTId: id });
 
     if (!nft) {
-      return res.status(404).json({ message: 'NFT không tồn tại trong hệ thống.' });
+      return res.status(404).json({ message: "NFT không tồn tại trong hệ thống." });
     }
 
-    if (!nft.forSale) {
-      return res.status(400).json({ message: 'NFT này không được rao bán.' });
-    }
-
-    // Gọi API GameShift để thu hồi
+    // Gọi API GameShift để thu hồi NFT
     const cancelResponse = await gameShiftService.cancelNFTListing(id);
-
-    // Cập nhật trạng thái trong MongoDB
-    nft.forSale = false;
-    await nft.save();
+    console.log("Phản hồi từ GameShift khi thu hồi:", cancelResponse);
 
     res.status(200).json({
-      message: 'NFT đã được thu hồi khỏi chợ thành công!',
-      nft,
+      message: "NFT đã được thu hồi khỏi chợ thành công!",
+      nft: { gameShiftNFTId: id },
       cancelResponse,
     });
   } catch (error) {
-    console.error('Lỗi khi thu hồi NFT:', error.message);
-    res.status(500).json({ message: 'Lỗi khi thu hồi NFT.', error: error.message });
+    console.error("Lỗi khi thu hồi NFT:", error.message);
+    res.status(500).json({ message: "Lỗi khi thu hồi NFT.", error: error.message });
+  }
+};
+
+// Controller để lấy thông tin chi tiết của NFT
+exports.getNFTDetails = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!id) {
+      return res.status(400).json({ message: 'NFT ID không được cung cấp.' });
+    }
+
+    // Gọi hàm từ service để lấy chi tiết NFT
+    const nftDetails = await gameShiftService.getNFTDetails(id);
+
+    // Phản hồi kết quả
+    return res.status(200).json({
+      message: 'Lấy thông tin chi tiết NFT thành công!',
+      data: nftDetails,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy thông tin chi tiết NFT:', error.message);
+    return res.status(500).json({ message: 'Không thể lấy thông tin chi tiết NFT.', error: error.message });
   }
 };
 
@@ -253,5 +285,90 @@ exports.sellNFT = async (req, res) => {
   } catch (error) {
       console.error('Lỗi khi rao bán NFT:', error.message);
       res.status(500).json({ message: 'Lỗi khi rao bán NFT.', error: error.message });
+  }
+};
+
+// Lấy danh sách NFT trong một bộ sưu tập
+exports.getNFTsByCollection = async (req, res) => {
+  const { collectionId } = req.query; // Lấy collectionId từ query parameters
+
+  if (!collectionId) {
+    return res.status(400).json({ message: 'Thiếu collectionId trong yêu cầu.' });
+  }
+
+  try {
+    // Gọi service để lấy danh sách NFT từ GameShift
+    const nfts = await gameShiftService.getNFTsByCollection(collectionId);
+
+    res.status(200).json({
+      message: `Danh sách NFT trong bộ sưu tập ${collectionId} đã được lấy thành công.`,
+      data: nfts,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách NFT:', error.message);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách NFT.', error: error.message });
+  }
+};
+// Lấy danh sách NFT của người dùng
+exports.getUserNFTs = async (req, res) => {
+  const { walletAddress } = req.user; // Lấy walletAddress từ token đã giải mã bởi authMiddleware
+
+  if (!walletAddress) {
+    return res.status(400).json({ message: "Wallet address không hợp lệ." });
+  }
+
+  try {
+    const nfts = await gameShiftService.fetchUserNFTs(walletAddress); // Gọi GameShift API
+    res.status(200).json({
+      message: "Danh sách NFT của người dùng:",
+      data: nfts,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách NFT của người dùng:", error.message);
+    res.status(500).json({
+      message: "Không thể lấy danh sách NFT của người dùng.",
+      error: error.message,
+    });
+  }
+};
+// Lấy nft trong bộ sưu tập
+exports.getNFTsByCollection = async (req, res) => {
+  const { collectionId } = req.params;
+
+  try {
+    if (!collectionId) {
+      return res.status(400).json({ message: "Thiếu collectionId" });
+    }
+
+    const nfts = await gameShiftService.getNFTsByCollection(collectionId);
+
+    res.status(200).json({
+      message: "Danh sách NFT trong bộ sưu tập",
+      data: nfts,
+    });
+  } catch (error) {
+    console.error("Lỗi trong NFT Controller:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+// Controller để lấy danh sách NFT của người dùng
+const getUserNFTs = async (req, res) => {
+  try {
+    // Lấy `walletAddress` từ token (authMiddleware gán vào req.user)
+    const walletAddress = req.user.walletAddress;
+    if (!walletAddress) {
+      return res.status(400).json({ message: "Wallet address không tồn tại." });
+    }
+
+    // Gọi service để lấy danh sách NFT
+    const items = await gameShiftService.getUserItems(walletAddress);
+
+    return res.status(200).json({
+      message: "Lấy danh sách NFT thành công!",
+      data: items,
+    });
+  } catch (error) {
+    console.error("Lỗi trong getUserNFTs:", error.message);
+    return res.status(500).json({ message: error.message });
   }
 };

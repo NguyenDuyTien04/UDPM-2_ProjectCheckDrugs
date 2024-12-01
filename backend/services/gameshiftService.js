@@ -120,20 +120,17 @@ exports.fetchCollectionsFromGameShift = async () => {
 exports.createNFT = async (nftData) => {
   try {
     console.log('Payload gửi lên GameShift:', nftData);
-    console.log('API Key sử dụng:', API_KEY);
-
     const response = await axios.post(
       `${BASE_URL}/unique-assets`,
       nftData,
       {
         headers: {
-          'x-api-key': API_KEY,
+          'x-api-key': API_KEY, // Thay bằng API Key của bạn
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }
     );
-
     console.log('Phản hồi từ GameShift khi tạo NFT:', response.data);
     return response.data;
   } catch (error) {
@@ -147,8 +144,6 @@ exports.createNFT = async (nftData) => {
     throw new Error(`GameShift Error: ${error.message}`);
   }
 };
-
-
 // Lấy tất cả NFT từ GameShift
 exports.fetchAllNFTs = async () => {
   try {
@@ -234,24 +229,29 @@ exports.fetchNFTsForSale = async (page = 1, perPage = 50) => {
     handleError(error);
   }
 };
-//thu hồi 
-exports.cancelNFTListing = async (assetId) => {
+// Hàm để lấy thông tin chi tiết NFT
+exports.getNFTDetails = async (itemId) => {
   try {
-    const url = `${BASE_URL}/unique-assets/${assetId}/cancel-listing`;
-    const response = await axios.post(
-      url,
-      {}, // Không yêu cầu body
-      {
-        headers: {
-          'x-api-key': API_KEY,
-          'Accept': 'application/json',
-        },
-      }
-    );
+    if (!itemId) {
+      throw new Error('Item ID không được cung cấp.');
+    }
 
-    console.log('Phản hồi từ GameShift khi thu hồi NFT:', response.data);
+    // Sử dụng endpoint chính xác của GameShift API
+    const url = `${BASE_URL}/items/${itemId}`;
+    console.log('Đang gọi API GameShift URL:', url);
+
+    // Gửi request tới GameShift API
+    const response = await axios.get(url, {
+      headers: {
+        accept: 'application/json',
+        'x-api-key': API_KEY,
+      },
+    });
+
+    console.log('Phản hồi từ GameShift API:', response.data);
     return response.data;
   } catch (error) {
+    // Log lỗi để kiểm tra
     if (error.response) {
       console.error('Lỗi từ GameShift API:', error.response.data);
       throw new Error(`GameShift Error: ${error.response.data.message || error.message}`);
@@ -260,6 +260,37 @@ exports.cancelNFTListing = async (assetId) => {
       throw new Error('Không nhận được phản hồi từ GameShift API.');
     } else {
       console.error('Lỗi khi gọi GameShift API:', error.message);
+      throw new Error(`GameShift Error: ${error.message}`);
+    }
+  }
+};
+
+// Hàm gọi API GameShift để thu hồi NFT khỏi chợ
+exports.cancelNFTListing = async (assetId) => {
+  try {
+    const url = `${BASE_URL}/unique-assets/${assetId}/cancel-listing`;
+    const response = await axios.post(
+      url,
+      {}, // Không yêu cầu body
+      {
+        headers: {
+          "x-api-key": API_KEY,
+          Accept: "application/json",
+        },
+      }
+    );
+
+    console.log("Phản hồi từ GameShift khi thu hồi NFT:", response.data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error("Lỗi từ GameShift API:", error.response.data);
+      throw new Error(`GameShift Error: ${error.response.data.message || error.message}`);
+    } else if (error.request) {
+      console.error("Không nhận được phản hồi từ GameShift API:", error.request);
+      throw new Error("Không nhận được phản hồi từ GameShift API.");
+    } else {
+      console.error("Lỗi khi gọi GameShift API:", error.message);
       throw new Error(`GameShift Error: ${error.message}`);
     }
   }
@@ -324,5 +355,39 @@ exports.fetchTransactionById = async (transactionId) => {
     return response.data;
   } catch (error) {
     handleError(error);
+  }
+};
+
+// Lấy danh sách NFT của người dùng qua `referenceId`
+exports.fetchUserNFTs = async (referenceId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/users/${referenceId}/items`, {
+      headers: {
+        accept: "application/json",
+        "x-api-key": API_KEY,
+      },
+    });
+
+    console.log("Phản hồi từ GameShift khi lấy danh sách NFT:", response.data);
+    return response.data; // Trả về dữ liệu từ API
+  } catch (error) {
+    handleError(error);
+  }
+};
+// Lấy NFT trong bộ sưu tậpj
+exports.getNFTsByCollection = async (collectionId) => {
+  try {
+    const url = `${BASE_URL}/asset-collections/${collectionId}/assets`;
+    const response = await axios.get(url, {
+      headers: {
+        accept: "application/json",
+        "x-api-key": API_KEY,
+      },
+    });
+
+    return response.data; // Trả về dữ liệu từ Gameshift API
+  } catch (error) {
+    console.error("Lỗi từ Gameshift API:", error.response?.data || error.message);
+    throw new Error(error.response?.data?.message || "Không thể lấy danh sách NFT từ Gameshift");
   }
 };

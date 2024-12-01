@@ -14,6 +14,16 @@ body {
   background-color: #262626;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  overflow-y: auto !important;
+}
+
+.create-nft-container {
+  max-width: 500px;
+  margin: 40px auto; /* Căn giữa và thêm khoảng cách từ trên */
+  padding: 30px 40px;
+  background-color: #262626;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); 
   border: 1px solid #333;
 }
 
@@ -72,6 +82,84 @@ button {
   display: inline-block;
   padding: 3px 6px; /* Giảm padding thêm */
   font-size: 8px; /* Giảm font-size */
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #ffc107;
+  text-transform: uppercase;
+}
+
+/* Tổng quan form */
+form select,
+form input,
+form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px; 
+  background-color: #1c1c1c;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #f1f1f1;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box; /* Đảm bảo padding không gây tràn */
+}
+
+/* Label màu trắng */
+form label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Focus hiệu ứng */
+form select:focus,
+form input:focus,
+form textarea:focus {
+  border-color: #ffc107;
+  outline: none;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+}
+
+/* Textarea với icon */
+.textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.textarea-wrapper textarea {
+  padding-right: 45px; /* Dành không gian cho icon */
+  resize: none;
+  height: 80px;
+}
+
+.textarea-wrapper img {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+/* Hình ảnh căn giữa */
+.image-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 200px;
+  margin: 20px auto; /* Căn giữa và thêm khoảng cách trên/dưới */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid #ffc107;
+}
+
+/* Hiển thị đẹp cho nút */
+button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
   font-weight: bold;
   color: #1c1c1c;
   background-color: #ffc107;
@@ -201,6 +289,37 @@ div input[type="radio"] {
   font-size: 0.8rem; /* Giảm font-size */
   font-weight: bold;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 0px 8px rgba(255, 215, 0, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #ffd54f;
+  box-shadow: 0px 4px 10px rgba(255, 193, 7, 0.7);
+}
+
+/* Danh sách thông báo lỗi */
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+/* Toastify Styling */
+.Toastify__toast {
+  display: flex;
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  justify-content: space-between; /* Đẩy nội dung và nút "x" sang 2 bên */
+  border-radius: 8px;
+  font-size: 14px; /* Kích thước chữ */
+  padding: 10px 15px; /* Khoảng cách bên trong */
+  font-weight: bold;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 0px 8px rgba(0, 255, 0, 0.5);
+  white-space: nowrap; /* Không xuống dòng */
+  overflow: hidden; /* Giới hạn nội dung */
 }
 
 .Toastify__toast--success {
@@ -236,6 +355,27 @@ div input[type="radio"] {
   opacity: 1;
 }
 
+.Toastify__progress-bar {
+  height: 3px; /* Giảm chiều cao */
+  background-color: #ffc107;
+}
+/* Chỉnh nút "x" */
+.Toastify__close-button {
+  color: #fff;
+  opacity: 1;
+  font-size: 12px; /* Giảm kích thước nút */
+  width: 20px;
+  height: 20px;
+  align-self: flex-start; /* Đẩy nút "x" lên góc */
+  margin-top: -2px; /* Căn chỉnh cho nút không chạm vào cạnh */
+  transition: opacity 0.3s ease;
+}
+
+.Toastify__close-button:hover {
+  opacity: 0.8; /* Hiệu ứng hover */
+}
+
+/* Thanh tiến trình */
 .Toastify__progress-bar {
   height: 3px; /* Giảm chiều cao */
   background-color: #ffc107;

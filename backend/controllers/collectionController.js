@@ -45,6 +45,9 @@ exports.createCollection = async (req, res) => {
     // Lưu Collection vào MongoDB
     const newCollection = new Collection({
       gameShiftCollectionId: collectionData.id,
+      name: collectionData.name,
+      description: collectionData.description,
+      imageUrl: collectionData.imageUrl,
     });
 
     await newCollection.save();
