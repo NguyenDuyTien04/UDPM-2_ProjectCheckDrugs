@@ -31,9 +31,6 @@ function Navbar() {
         <li>
           <Link to="/shippingtracking">Vận chuyển</Link>
         </li>
-        <li>
-          <Link to="/usertransactionstatschart">Thống kê</Link>
-        </li>
         {user ? (
           <>
             <li className="wallet-info">Ví: {user.walletAddress.slice(0, 5)}...</li>

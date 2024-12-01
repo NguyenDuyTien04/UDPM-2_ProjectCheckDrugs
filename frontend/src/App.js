@@ -12,8 +12,6 @@ import Collection from "./pages/Collection";
 import ShippingTracking from './pages/ShippingTracking';
 import CreateNFT from "./pages/CreateNFT";
 import NftList from "./pages/UserNFTs";
-import UserTransactionStatsChart from './pages/UserTransactionStatsChart';
-
 
 function App() {
   return (
@@ -29,7 +27,6 @@ function App() {
         <Route path="/market" element={<MarketNFT />} />
         <Route path="/purchase-history" element={<PurchaseHistory />} />
         <Route path="/shippingtracking" element={<ShippingTracking />} />
-        <Route path="/usertransactionstatschart" element={<UserTransactionStatsChart />} />
       </Routes>
     </UserProvider>
   );
