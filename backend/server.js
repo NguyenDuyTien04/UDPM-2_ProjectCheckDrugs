@@ -11,6 +11,9 @@ const collectionRoutes = require('./routes/collectionRoutes'); // Đảm bảo t
 const nftRoutes = require('./routes/nftRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const shippingRoutes = require('./routes/shippingRoutes');
+const userTransactionRoutes = require('./routes/userTransactionRoutes');
+
+
 
 // Kết nối MongoDB
 mongoose
@@ -24,6 +27,7 @@ app.use(express.json());
 
 // Routes
 app.use(shippingRoutes);
+app.use('/api', userTransactionRoutes);
 
 // Cung cấp tệp tĩnh cho thư mục 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
