@@ -11,8 +11,6 @@ import Collection from "./pages/Collection";
 
 import ShippingTracking from './pages/ShippingTracking';
 import CreateNFT from "./pages/CreateNFT";
-
-import CreateNFT from "./pages/CreateNFT";
 import NftList from "./pages/UserNFTs";
 
 function App() {
