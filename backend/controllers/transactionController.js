@@ -75,4 +75,29 @@ exports.getTransactionById = async (req, res) => {
 };
 
 
+// const gameShiftService = require('../services/gameShiftService'); // Import service bạn đã có
+
+// // Lấy lịch sử giao dịch
+// exports.getTransactionHistory = async (req, res) => {
+//   const { userId } = req.params; // Lấy userId từ request params
+//   try {
+//     // Gọi service để lấy danh sách giao dịch từ GameShift API
+//     const transactions = await gameShiftService.fetchUserTransactions(userId);
+
+//     if (!transactions || transactions.length === 0) {
+//       return res.status(404).json({ message: 'Người dùng không có giao dịch nào.' });
+//     }
+
+//     // Trả về danh sách giao dịch
+//     res.status(200).json({
+//       message: 'Lịch sử giao dịch của người dùng:',
+//       data: transactions,
+//     });
+//   } catch (error) {
+//     console.error('Lỗi khi lấy lịch sử giao dịch:', error.message);
+//     res.status(500).json({ message: 'Lỗi khi lấy lịch sử giao dịch.', error: error.message });
+//   }
+// };
+
+
 
