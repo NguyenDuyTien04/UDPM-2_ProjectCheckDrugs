@@ -2,29 +2,28 @@ const express = require("express");
 const router = express.Router();
 const Transaction = require("../models/Transaction");
 
-// API: Lấy số lượng giao dịch theo trạng thái
-router.get("/statistics/status", async (req, res) => {
-  try {
-    // Lấy tất cả giao dịch từ MongoDB
-    const transactions = await Transaction.find();
-
-    // Tính số lượng giao dịch theo trạng thái
-    const statusCounts = transactions.reduce((acc, transaction) => {
-      acc[transaction.status] = (acc[transaction.status] || 0) + 1;
-      return acc;
-    }, {});
-
-    res.status(200).json({
-      message: "Thống kê giao dịch theo trạng thái:",
-      data: statusCounts,
-    });
-  } catch (error) {
-    console.error("Lỗi khi lấy thống kê giao dịch:", error.message);
-    res.status(500).json({
-      message: "Không thể lấy thống kê giao dịch.",
-      error: error.message,
-    });
-  }
-});
+app.get('/api/transactions/status-counts', async (req, res) => {
+    try {
+      const transactions = await Transaction.find();
+  
+      // Tính số lượng giao dịch theo trạng thái
+      const statusCounts = transactions.reduce((acc, transaction) => {
+        acc[transaction.status] = (acc[transaction.status] || 0) + 1;
+        return acc;
+      }, {});
+  
+      // Đảm bảo trả về 3 trạng thái, nếu không có giao dịch, mặc định trả về 0
+      const result = {
+        Pending: statusCounts.Pending || 0,
+        Completed: statusCounts.Completed || 0,
+        Failed: statusCounts.Failed || 0,
+      };
+  
+      res.json(result);  // Trả về kết quả JSON
+    } catch (error) {
+      console.error('Lỗi khi lấy trạng thái giao dịch:', error);
+      res.status(500).json({ error: 'Không thể lấy trạng thái giao dịch' });
+    }
+  });
 
 module.exports = router;
