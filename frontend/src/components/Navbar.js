@@ -29,7 +29,7 @@ function Navbar() {
           <Link to="/purchase-history">Lịch sử giao dịch</Link>
         </li>
         <li>
-          <Link to="/shippingtracking">Vận chuyển</Link>
+          <Link to="/shippingtracking">Thống kê</Link>
         </li>
         {user ? (
           <>

@@ -1,0 +1,14 @@
+.transaction-status-chart-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .transaction-status-chart-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .transaction-status-chart-container canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  
