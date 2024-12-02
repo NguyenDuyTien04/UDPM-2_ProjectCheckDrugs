@@ -94,3 +94,20 @@ export const fetchMarketNFTs = async () => {
     return response.data;
 };
 
+
+const api = axios.create({
+  baseURL: "http://localhost:5000", // Thay bằng URL của backend
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export default api;
+export const fetchTransactions = async (token) => {
+    const response = await api.get("/transactions/all", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  };

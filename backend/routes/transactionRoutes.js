@@ -13,3 +13,14 @@ router.post('/verify', authMiddleware, transactionController.verifyTransaction);
 router.get('/:transactionId', transactionController.getTransactionById);
 
 module.exports = router;
+
+
+// const express = require('express');
+// const router = express.Router();
+// const transactionController = require('../controllers/transactionController');
+
+// // Endpoint để lấy lịch sử giao dịch
+// router.get('/users/:userId/transaction-history', transactionController.getTransactionHistory);
+
+// module.exports = router;
+

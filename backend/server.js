@@ -9,7 +9,9 @@ const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const collectionRoutes = require('./routes/collectionRoutes'); // Đảm bảo tên file routes đúng
 const nftRoutes = require('./routes/nftRoutes');
-const transactionRoutes = require('./routes/transactionRoutes');
+
+const transactionRoutes = require('./routes/transactionRoutes'); // Import transactionRoutes
+
 // Kết nối MongoDB
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
