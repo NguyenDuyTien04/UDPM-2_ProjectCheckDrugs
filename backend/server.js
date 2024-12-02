@@ -10,6 +10,9 @@ const authRoutes = require('./routes/authRoutes');
 const collectionRoutes = require('./routes/collectionRoutes'); // Đảm bảo tên file routes đúng
 const nftRoutes = require('./routes/nftRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const Transaction = require("./models/Transaction");
+
+
 
 // Kết nối MongoDB
 mongoose
@@ -22,6 +25,31 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+// API để lấy trạng thái giao dịch
+app.get("/api/transactions/status-counts", async (req, res) => {
+  try {
+    // Đếm số lượng giao dịch theo trạng thái
+    const statusCounts = await Transaction.aggregate([
+      {
+        $group: {
+          _id: "$status", // Nhóm theo trạng thái giao dịch
+          count: { $sum: 1 } // Đếm số lượng giao dịch theo mỗi trạng thái
+        }
+      }
+    ]);
+
+    // Chuyển đổi kết quả nhóm thành đối tượng để dễ sử dụng trong frontend
+    const result = statusCounts.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+
+    res.json(result); // Trả về kết quả dưới dạng JSON
+  } catch (error) {
+    console.error("Lỗi khi lấy trạng thái giao dịch:", error);
+    res.status(500).send("Lỗi server khi lấy trạng thái giao dịch");
+  }
+});
 
 
 // Cung cấp tệp tĩnh cho thư mục 'uploads'
