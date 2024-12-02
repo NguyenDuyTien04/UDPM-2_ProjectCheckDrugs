@@ -1,0 +1,11 @@
+.transaction-status-chart-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .chart-container {
+    width: 50%; /* Thay đổi width để giảm kích thước */
+    margin: 0 auto; /* Căn giữa biểu đồ */
+    height: 300px; /* Giới hạn chiều cao biểu đồ */
+  }
+  

@@ -97,7 +97,9 @@ form input[readonly] {
   form button {
     font-size: 0.9rem;
   }
+
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -224,3 +226,4 @@ form input[readonly] {
   border-color: #f1c40f; /* Đổi màu viền khi focus */
   box-shadow: 0 0 5px #f1c40f;
 }
+

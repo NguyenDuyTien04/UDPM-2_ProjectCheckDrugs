@@ -28,6 +28,9 @@ function Navbar() {
         <li>
           <Link to="/purchase-history">Lịch sử giao dịch</Link>
         </li>
+        <li>
+          <Link to="/TransactionStatusChart">Thống kê</Link>
+        </li>
         {user ? (
           <>
             <li className="wallet-info">Ví: {user.walletAddress.slice(0, 5)}...</li>
