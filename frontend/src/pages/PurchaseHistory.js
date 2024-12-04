@@ -67,6 +67,8 @@ const TransactionHistory = ({ token }) => {
               <td colSpan="6">Không có giao dịch nào</td>
             </tr>
           )}
+         
+         
         </tbody>
       </table>
     </div>
