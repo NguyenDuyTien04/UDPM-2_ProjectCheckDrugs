@@ -1,0 +1,60 @@
+.container {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+  }
+  
+  .transaction {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transaction p {
+    margin: 8px 0;
+    color: #333;
+  }
+  
+  .transaction ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .transaction li {
+    padding: 5px 0;
+    border-bottom: 1px dashed #ccc;
+    color: #555;
+  }
+  
+  .transaction li:last-child {
+    border-bottom: none;
+  }
+  
+  .transaction li strong {
+    color: #34495e;
+  }
+  
+  .transaction .total {
+    font-weight: bold;
+    color: #e74c3c;
+  }
+  
+  .transaction .status {
+    font-weight: bold;
+    color: #27ae60;
+  }
+  
+  .transaction .status.failed {
+    color: #e74c3c;
+  }
+  
