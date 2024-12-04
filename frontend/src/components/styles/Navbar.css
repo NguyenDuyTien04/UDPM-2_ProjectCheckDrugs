@@ -25,7 +25,7 @@
 .navbar ul {
   list-style: none;
   display: flex;
-  gap: 20px; /* Khoảng cách giữa các liên kết */
+  gap: 20px; /* Khoảng cách đồng đều giữa các nút */
   margin: 0;
   padding: 0;
 }
@@ -51,6 +51,22 @@
   color: #000; /* Chữ đen khi hover */
 }
 
+/* Nút Đăng nhập và Đăng ký */
+.navbar ul li.auth-links a {
+  text-decoration: none;
+  color: #fff; /* Màu chữ trắng */
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.navbar ul li.auth-links a:hover {
+  background-color: #ffa500; /* Nền cam khi hover */
+  color: #000; /* Chữ đen khi hover */
+}
 /* Nút Đăng xuất */
 .navbar ul li button {
   background-color: #ff4d4d; /* Nền đỏ */

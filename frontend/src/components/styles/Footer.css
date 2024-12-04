@@ -1,0 +1,25 @@
+/* Tổng thể Footer */
+footer {
+    background-color: #2d3748; /* Màu nền xám tối */
+    color: #ffffff; /* Màu chữ trắng */
+    padding: 1rem 0; /* Khoảng cách trên và dưới */
+    text-align: center;
+  }
+  
+  footer p {
+    font-size: 0.875rem; /* Cỡ chữ nhỏ */
+    margin: 0;
+  }
+  
+  /* Liên kết trong Footer */
+  footer a {
+    margin: 0 0.5rem; /* Khoảng cách giữa các liên kết */
+    color: #a0aec0; /* Màu xám nhạt */
+    text-decoration: none; /* Xóa gạch chân */
+    transition: color 0.3s; /* Hiệu ứng chuyển màu mượt */
+  }
+  
+  footer a:hover {
+    color: #ffffff; /* Màu trắng khi hover */
+  }
+  

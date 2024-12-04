@@ -100,6 +100,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(5px);
 }
 
 .popup-content {
@@ -210,7 +211,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
 }
 
 .modal-content {

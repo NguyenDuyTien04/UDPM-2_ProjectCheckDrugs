@@ -9,19 +9,19 @@ import "./styles/Login.css";
 function Login() {
   const [email, setEmail] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setUser } = useUserContext();
 
-  // Kết nối ví Phantom
+  // Tự động kết nối ví Phantom khi trang được tải
   useEffect(() => {
-    const connectWallet = async () => {
+    const autoConnectWallet = async () => {
       if (window.solana && window.solana.isPhantom) {
         try {
           const response = await window.solana.connect({ onlyIfTrusted: true });
           setWalletAddress(response.publicKey.toString());
           toast.success("Kết nối ví thành công!");
         } catch (err) {
+          console.warn("Không thể tự động kết nối ví:", err.message);
           console.error("Lỗi kết nối ví:", err);
           toast.error("Vui lòng mở khóa ví Phantom để tiếp tục.");
         }
@@ -29,9 +29,10 @@ function Login() {
         toast.warning("Vui lòng cài đặt ví Phantom để sử dụng.");
       }
     };
-    connectWallet();
+    autoConnectWallet();
   }, []);
 
+  // Hàm kết nối ví khi người dùng nhấn nút
   const handleConnectWallet = async () => {
     if (window.solana && window.solana.isPhantom) {
       try {
@@ -41,6 +42,7 @@ function Login() {
         toast.success("Kết nối ví thành công!");
       } catch (err) {
         console.error("Kết nối ví thất bại:", err.message);
+        toast.error("Vui lòng thử lại và đảm bảo ví của bạn đã mở khóa.");
         toast.error("Vui lòng thử lại và mở khóa ví Phantom!");
       }
     } else {
@@ -48,16 +50,20 @@ function Login() {
     }
   };
 
+  // Hàm xử lý đăng nhập
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!walletAddress) {
+      toast.error("Bạn cần kết nối ví trước khi đăng nhập.");
       toast.error("Bạn cần kết nối ví trước khi đăng nhập.");
       return;
     }
-
+  
     try {
+      // Gọi API để đăng nhập
       const { user, token } = await loginUser({ email, walletAddress });
+      // Lưu thông tin đăng nhập vào localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("walletAddress", walletAddress);
       setUser(user);
@@ -68,6 +74,7 @@ function Login() {
       toast.error("Đăng nhập thất bại. Vui lòng kiểm tra thông tin.");
     }
   };
+  
 
   return (
     <div className="login-container">

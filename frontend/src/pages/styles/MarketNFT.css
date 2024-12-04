@@ -60,6 +60,7 @@ body {
   margin: 40px 0;
 }
 
+/* Tiêu đề phần */
 .market-section h3 {
   font-size: 1.8rem;
   color: #fff;
@@ -70,6 +71,7 @@ body {
 }
 
 /* Danh sách NFT */
+/* Danh sách NFT */
 .market-list {
   display: flex;
   flex-wrap: wrap;
@@ -77,6 +79,7 @@ body {
   justify-content: center;
 }
 
+/* Card NFT */
 /* Card NFT */
 .market-card {
   background-color: #1a1a1a;
@@ -92,6 +95,7 @@ body {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
+/* Hình ảnh */
 /* Hình ảnh */
 .market-card img {
   width: 100%;
@@ -118,6 +122,7 @@ body {
   color: #ffc107;
 }
 
+/* Nút Mua */
 /* Nút Mua */
 .btn-buy {
   background: linear-gradient(45deg, #ffc107, #ffaa00);

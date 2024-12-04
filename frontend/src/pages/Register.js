@@ -10,10 +10,25 @@ function Register() {
     email: "",
     walletAddress: "",
   });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    walletAddress: "",
+  });
   const [error, setError] = useState("");
 
   // Kết nối ví Phantom
   useEffect(() => {
+    const connectWallet = async () => {
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          const response = await window.solana.connect(); // Kết nối ví Phantom
+          setFormData((prev) => ({
+            ...prev,
+            walletAddress: response.publicKey.toString(), // Lấy địa chỉ ví từ Phantom
+          }));
+          toast.success("Kết nối ví Phantom thành công!");
+        } catch (err) {
     if (window.solana && window.solana.isPhantom) {
       window.solana
         .connect()
@@ -57,6 +72,7 @@ function Register() {
   return (
     <div className="register-container">
       <ToastContainer />
+      <ToastContainer />
       <h2>Đăng ký</h2>
       {error && <p className="error">{error}</p>}
       <form onSubmit={handleSubmit}>
@@ -70,6 +86,10 @@ function Register() {
         />
         <input
           type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
           name="email"
           placeholder="Email"
           value={formData.email}
@@ -88,6 +108,6 @@ function Register() {
       </form>
     </div>
   );
-}
+
 
 export default Register;
