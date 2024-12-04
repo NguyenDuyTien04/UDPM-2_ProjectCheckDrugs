@@ -31,7 +31,7 @@ const transactionSchema = new mongoose.Schema({
   status: {
     type: String, // Trạng thái giao dịch
     enum: ['Pending', 'Completed', 'Failed'],
-    default: 'Pending', // Trạng thái mặc định là "Pending"
+    default: 'Completed', // Trạng thái mặc định là "Pending"
   },
   consentUrl: {
     type: String, // URL yêu cầu xác nhận giao dịch từ GameShift

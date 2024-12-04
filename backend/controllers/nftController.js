@@ -206,7 +206,7 @@ exports.buyNFT = async (req, res) => {
           action: 'buy', // Loại giao dịch
           price: purchaseResponse.price?.naturalAmount || null, // Giá giao dịch
           currency: purchaseResponse.price?.currencyId || null, // Loại tiền
-          status: 'Pending', // Trạng thái giao dịch ban đầu
+          status: 'Completed', // Trạng thái giao dịch ban đầu
           consentUrl: purchaseResponse.consentUrl, // URL để người dùng ký giao dịch
       });
 
@@ -264,7 +264,7 @@ exports.sellNFT = async (req, res) => {
           action: 'sell', // Loại hành động là "rao bán"
           price: price.naturalAmount, // Giá bán
           currency: price.currencyId, // Loại tiền
-          status: 'Pending', // Trạng thái giao dịch ban đầu là "Pending"
+          status: 'Completed', // Trạng thái giao dịch ban đầu là "Pending"
           consentUrl: sellResponse.consentUrl, // URL xác nhận giao dịch
       });
 

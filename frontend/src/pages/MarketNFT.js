@@ -20,6 +20,11 @@ const MarketNFT = () => {
           throw new Error("Dữ liệu từ API không hợp lệ.");
         }
 
+        // Log để kiểm tra dữ liệu từng phần tử
+        data.forEach((nft, index) => {
+          console.log(`NFT ${index + 1}:`, nft);
+        });
+
         // Classify NFTs into categories
         const certificateNFTs = data.filter((nft) =>
           nft.attributes?.some((attr) => attr.value === "certificate")
@@ -98,15 +103,15 @@ const MarketNFT = () => {
                     <img
                       src={nft.imageUrl || "placeholder-image-url.jpg"}
                       alt={nft.name || "Không có tên"}
-                      onError={(e) =>
-                        (e.target.src = "placeholder-image-url.jpg")
-                      }
+                      onError={(e) => (e.target.src = "placeholder-image-url.jpg")}
                     />
                     <h4>{nft.name || "Không có tên"}</h4>
                     <p>{nft.description || "Không có mô tả"}</p>
                     <p>
-                      Giá: {(nft.priceCents / 100).toFixed(2)}{" "}
-                      {nft.currency || "SOL"}
+                      Giá:{" "}
+                      {nft.price && nft.price.naturalAmount
+                        ? `${parseFloat(nft.price.naturalAmount).toFixed(2)} ${nft.price.currencyId || "SOL"}`
+                        : "Không có giá"}
                     </p>
                     <button onClick={() => openModal(nft)} className="btn-buy">
                       Mua ngay
@@ -131,15 +136,15 @@ const MarketNFT = () => {
                     <img
                       src={nft.imageUrl || "placeholder-image-url.jpg"}
                       alt={nft.name || "Không có tên"}
-                      onError={(e) =>
-                        (e.target.src = "placeholder-image-url.jpg")
-                      }
+                      onError={(e) => (e.target.src = "placeholder-image-url.jpg")}
                     />
                     <h4>{nft.name || "Không có tên"}</h4>
                     <p>{nft.description || "Không có mô tả"}</p>
                     <p>
-                      Giá: {(nft.priceCents / 100).toFixed(2)}{" "}
-                      {nft.currency || "SOL"}
+                      Giá:{" "}
+                      {nft.price && nft.price.naturalAmount
+                        ? `${parseFloat(nft.price.naturalAmount).toFixed(2)} ${nft.price.currencyId || "SOL"}`
+                        : "Không có giá"}
                     </p>
                     <button onClick={() => openModal(nft)} className="btn-buy">
                       Mua ngay

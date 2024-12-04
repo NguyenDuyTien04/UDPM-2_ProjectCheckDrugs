@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/CreateNFT.css";
 
-const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs.js
+const CreateNFT = ({ closeModal, onNFTCreated }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -82,13 +82,19 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
       return;
     }
 
+    console.log("Dữ liệu gửi để tạo NFT:", formData); // Log dữ liệu để kiểm tra
+
     try {
       await createNFT(formData, user.token);
       toast.success("NFT được tạo thành công!", { position: "top-center" });
-      closeModal();  // Đóng modal khi tạo NFT thành công
+
+      // Notify to update NFT list
+      onNFTCreated();
+
+      setFormData({ name: "", description: "", collectionId: "", type: "", imageUrl: "" });
+      closeModal();
     } catch (error) {
       console.error("Lỗi khi tạo NFT:", error);
-      toast.error("Không thể tạo NFT. Vui lòng thử lại.", { position: "top-center" });
     } finally {
       setIsLoading(false);
     }
@@ -97,7 +103,7 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
   return (
     <div className="create-nft-container">
       <ToastContainer />
-       <button onClick={closeModal} className="btn-dong">
+      <button onClick={closeModal} className="btn-dong">
         X
       </button>
       <h2>Tạo NFT</h2>
@@ -143,7 +149,8 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
           onBlur={handleImageUrlBlur}
         />
         {imagePreview && (
-          <img width={'100px'}
+          <img
+            width={"100px"}
             src={imagePreview}
             alt="Xem trước hình ảnh"
             className="image-preview"
@@ -161,7 +168,7 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
             Chọn bộ sưu tập
           </option>
           {collections.map((collection) => (
-            <option key={collection.id} value={collection.gameShiftCollectionId}>
+            <option key={collection.gameShiftCollectionId} value={collection.gameShiftCollectionId}>
               {collection.name || "Tên không xác định"}
             </option>
           ))}
@@ -172,7 +179,6 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
         </button>
       </form>
 
-      {/* Nút đóng modal */}
       <button onClick={closeModal} className="btn-close-popup">
         Đóng Popup
       </button>

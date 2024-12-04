@@ -5,12 +5,12 @@ import {
   cancelNFTListing,
   fetchNFTDetails,
 } from "../services/api";
-import { useUserContext } from "../context/UserContext"; // Lấy context
-import CreateNFT from "./CreateNFT"; // Import CreateNFT component
+import { useUserContext } from "../context/UserContext";
+import CreateNFT from "./CreateNFT";
 import "./styles/UserNFTs.css";
 
 const UserNFTs = () => {
-  const { user } = useUserContext(); // Lấy thông tin user từ context
+  const { user } = useUserContext();
   const [currencies, setCurrencies] = useState([]);
   const [nfts, setNFTs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const UserNFTs = () => {
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [isAddNFTModalOpen, setIsAddNFTModalOpen] = useState(false); // State để mở/đóng popup Thêm NFT
+  const [isAddNFTModalOpen, setIsAddNFTModalOpen] = useState(false);
   const [price, setPrice] = useState("");
   const [currency, setCurrency] = useState("USDC");
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -86,11 +86,11 @@ const UserNFTs = () => {
   };
 
   const openAddNFTModal = () => {
-    setIsAddNFTModalOpen(true); // Mở popup "Thêm NFT"
+    setIsAddNFTModalOpen(true);
   };
 
   const closeAddNFTModal = () => {
-    setIsAddNFTModalOpen(false); // Đóng popup "Thêm NFT"
+    setIsAddNFTModalOpen(false);
   };
 
   const handleViewDetails = async (nftId) => {
@@ -128,7 +128,11 @@ const UserNFTs = () => {
       alert("Vui lòng nhập giá hợp lệ!");
       return;
     }
-
+    console.log({
+      assetId: selectedNFT?.item?.id,
+      naturalAmount: price,
+      currencyId: currency,
+    });
     try {
       const response = await sellNFT(
         {
@@ -194,7 +198,6 @@ const UserNFTs = () => {
     <div className="user-nfts-container">
       <h2>Tài sản của bạn</h2>
 
-      {/* Nút mở popup Thêm NFT */}
       <button onClick={openAddNFTModal} className="btn-create">
         Thêm NFT
       </button>
@@ -218,7 +221,7 @@ const UserNFTs = () => {
         <div className="nft-list">
           {nfts.map((nft) => (
             <div key={nft.item.id} className="nft-card">
-              <img 
+              <img
                 src={nft.item.imageUrl || "placeholder-image.jpg"}
                 alt={nft.item.name || "NFT"}
               />
@@ -231,8 +234,8 @@ const UserNFTs = () => {
                 <button
                   onClick={() =>
                     nft.item.forSale
-                      ? openWithdrawModal(nft) // Mở modal thu hồi nếu `forSale` là true
-                      : openSellModal(nft) // Mở modal rao bán nếu `forSale` là false
+                      ? openWithdrawModal(nft)
+                      : openSellModal(nft)
                   }
                 >
                   {nft.item.forSale ? "Thu Hồi" : "Rao Bán"}
@@ -243,14 +246,12 @@ const UserNFTs = () => {
         </div>
       </div>
 
-      {/* Modal Thêm NFT */}
       {isAddNFTModalOpen && (
         <div className="modal-overlay">
           <CreateNFT closeModal={closeAddNFTModal} />
         </div>
       )}
 
-      {/* Modal chi tiết NFT */}
       {isDetailsModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -273,7 +274,6 @@ const UserNFTs = () => {
         </div>
       )}
 
-      {/* Modal rao bán NFT */}
       {isSellModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -305,7 +305,6 @@ const UserNFTs = () => {
         </div>
       )}
 
-      {/* Modal thu hồi NFT */}
       {isWithdrawModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
