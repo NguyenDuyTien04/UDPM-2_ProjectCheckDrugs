@@ -119,31 +119,44 @@ exports.fetchCollectionsFromGameShift = async () => {
 // Tạo NFT trên GameShift
 exports.createNFT = async (nftData) => {
   try {
-    console.log('Payload gửi lên GameShift:', nftData);
-    const response = await axios.post(
-      `${BASE_URL}/unique-assets`,
-      nftData,
-      {
-        headers: {
-          'x-api-key': API_KEY, // Thay bằng API Key của bạn
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
+    console.log('Đang gửi yêu cầu tạo NFT đến GameShift với payload:', nftData);
+
+    const response = await axios({
+      method: 'POST',
+      url: `${BASE_URL}/unique-assets`,
+      headers: {
+        'accept': 'application/json',
+        'x-api-key': API_KEY,
+        'content-type': 'application/json'
+      },
+      data: {
+        details: {
+          collectionId: nftData.collectionId,
+          description: nftData.description,
+          imageUrl: nftData.imageUrl,
+          name: nftData.name,
+          royaltyInfo: {
+            sellerFeeBasisPoints: 200, // 2%
+            recipients: [
+              {
+                address: "8Vyrr5BNqPo2RNSy2EHMRSjyqScsqKk33si8Nkd9x12t",
+                share: 100 // %
+              }
+            ]
+          }
         },
+        destinationUserReferenceId: nftData.walletAddress
       }
-    );
-    console.log('Phản hồi từ GameShift khi tạo NFT:', response.data);
+    });
+
+    console.log('Phản hồi từ GameShift:', response.data);
     return response.data;
   } catch (error) {
-    if (error.response) {
-      console.error('Lỗi từ GameShift API (response):', error.response.data);
-    } else if (error.request) {
-      console.error('Lỗi từ GameShift API (request):', error.request);
-    } else {
-      console.error('Lỗi khi gọi GameShift API:', error.message);
-    }
-    throw new Error(`GameShift Error: ${error.message}`);
+    console.error('Lỗi khi tạo NFT:', error);
+    handleError(error);
   }
 };
+
 // Lấy tất cả NFT từ GameShift
 exports.fetchAllNFTs = async () => {
   try {

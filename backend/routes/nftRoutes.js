@@ -31,5 +31,7 @@ router.get('/user-nfts', authMiddleware, nftController.getUserNFTs);
 // Lấy danh sách NFT trong một bộ sưu tập
 router.get('/:collectionId', authMiddleware, nftController.getNFTsByCollection);
 
+router.post('/create', authMiddleware, nftController.createNFT);
+
 
 module.exports = router;

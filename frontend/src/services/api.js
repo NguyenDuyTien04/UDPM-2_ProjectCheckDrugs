@@ -70,21 +70,31 @@ export const createCollection = async (data, token) => {
 };
 
 // Tạo NFT
-export const createNFT = async (data, token) => {
+export const createNFT = async (nftData, token) => {
     try {
-        if (!token) throw new Error("Token không tồn tại.");
-        const response = await axios.post(`${API_BASE_URL}/nft/create`, data, {
-            headers: {
-                Authorization: `Bearer ${token}`, // Thêm token vào header
-                "Content-Type": "application/json",
-            },
-        });
-        return response.data;
+      const response = await axios.post(
+        `${API_BASE_URL}/nft/create`,
+        {
+          collectionId: nftData.collectionId,
+          description: nftData.description,
+          name: nftData.name,
+          imageUrl: nftData.imageUrl,
+          royaltyReferenceId: nftData.royaltyReferenceId,
+          royaltyAddress: nftData.royaltyAddress,
+          royaltyShare: nftData.royaltyShare || 10 // Default to 10% if not specified
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      return response.data;
     } catch (error) {
-        console.error("Lỗi khi tạo NFT:", error.response?.data?.message || error.message);
-        throw error;
+      throw error.response?.data || error;
     }
-};
+  };
 
 
 
@@ -107,10 +117,10 @@ export const fetchMarketNFTs = async () => {
 
         // Kiểm tra nếu `response.data.data` tồn tại và là một mảng
         const nftList =
-            response.data.data?.data && Array.isArray(response.data.data.data)
+            response.data.data && Array.isArray(response.data.data.data)
                 ? response.data.data.data.map((entry) => entry.item) // Lấy `item` từ mỗi object
                 : [];
-
+        console.log("Danh sách NFT từ Market:", nftList);
         return nftList;
     } catch (error) {
         console.error(

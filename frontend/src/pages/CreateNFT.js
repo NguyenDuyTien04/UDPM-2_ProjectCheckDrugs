@@ -5,99 +5,71 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles/CreateNFT.css";
 
-const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs.js
+const CreateNFT = ({ closeModal }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     collectionId: "",
-    type: "",
     imageUrl: "",
+    type: ""
   });
 
-  const [imagePreview, setImagePreview] = useState("");
   const [collections, setCollections] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { user } = useUserContext();
+  const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    if (user?.token) {
+      fetchNFTCollections(user.token);
+    }
+  }, [user?.token]);
 
   const fetchNFTCollections = async (token) => {
     try {
-      const collectionsData = await fetchCollections(token);
-      if (collectionsData && collectionsData.length > 0) {
-        setCollections(collectionsData);
-        toast.success("Danh sách bộ sưu tập NFT đã tải thành công!", {
-          position: "top-center",
-        });
-      } else {
-        toast.warning("Không có bộ sưu tập NFT nào được tìm thấy.", {
-          position: "top-center",
-        });
+      const response = await fetchCollections(token);
+      console.log("Dữ liệu collections:", response);
+      if (response) {
+        setCollections(response);
       }
     } catch (err) {
-      console.error("Lỗi khi tải danh sách bộ sưu tập NFT:", err.message);
-      setError(err.message);
-      toast.error("Không thể tải danh sách bộ sưu tập NFT.", {
-        position: "top-center",
-      });
+      console.error("Lỗi khi tải danh sách bộ sưu tập:", err);
+      toast.error("Không thể tải danh sách bộ sưu tập.");
     }
-  };
-
-  useEffect(() => {
-    if (user.token) {
-      fetchNFTCollections(user.token);
-    }
-  }, [user.token]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleImageUrlBlur = () => {
-    if (formData.imageUrl.trim() === "") return;
-
-    const image = new Image();
-    image.src = formData.imageUrl;
-
-    image.onload = () => {
-      setImagePreview(formData.imageUrl);
-      toast.success("URL ảnh hợp lệ!", { position: "top-center" });
-    };
-
-    image.onerror = () => {
-      setImagePreview("");
-      toast.error("URL ảnh không hợp lệ hoặc không thể tải ảnh.", {
-        position: "top-center",
-      });
-    };
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
     setIsLoading(true);
 
-    if (!user?.token) {
-      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-center" });
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      await createNFT(formData, user.token);
-      toast.success("NFT được tạo thành công!", { position: "top-center" });
-      closeModal();  // Đóng modal khi tạo NFT thành công
+      const response = await createNFT(formData, user.token);
+      toast.success("NFT đã được tạo thành công!");
+      if (closeModal) closeModal();
     } catch (error) {
       console.error("Lỗi khi tạo NFT:", error);
-      toast.error("Không thể tạo NFT. Vui lòng thử lại.", { position: "top-center" });
+      toast.error(error.message || "Có lỗi xảy ra khi tạo NFT");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageUrlBlur = () => {
+    setImagePreview(formData.imageUrl);
+  };
+
   return (
     <div className="create-nft-container">
       <ToastContainer />
-       <button onClick={closeModal} className="btn-dong">
+      <button onClick={closeModal} className="btn-dong">
         X
       </button>
       <h2>Tạo NFT</h2>
@@ -143,7 +115,8 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
           onBlur={handleImageUrlBlur}
         />
         {imagePreview && (
-          <img width={'100px'}
+          <img
+            width="100px"
             src={imagePreview}
             alt="Xem trước hình ảnh"
             className="image-preview"
@@ -161,7 +134,7 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
             Chọn bộ sưu tập
           </option>
           {collections.map((collection) => (
-            <option key={collection.id} value={collection.gameShiftCollectionId}>
+            <option key={collection._id} value={collection.gameShiftCollectionId}>
               {collection.name || "Tên không xác định"}
             </option>
           ))}
@@ -172,7 +145,6 @@ const CreateNFT = ({ closeModal }) => {  // Nhận prop closeModal từ UserNFTs
         </button>
       </form>
 
-      {/* Nút đóng modal */}
       <button onClick={closeModal} className="btn-close-popup">
         Đóng Popup
       </button>

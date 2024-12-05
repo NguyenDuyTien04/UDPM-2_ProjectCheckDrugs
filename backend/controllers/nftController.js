@@ -2,64 +2,40 @@ const NFT = require('../models/NFT');
 const Transaction = require('../models/Transaction');
 const gameShiftService = require('../services/gameshiftService');
 
-exports.createNFT = async (req, res) => {
-  const { collectionId, description, name, imageUrl, type } = req.body;
+  exports.createNFT = async (req, res) => {
+    const { collectionId, description, name, imageUrl } = req.body;
+    const { walletAddress } = req.user; // From auth middleware
 
-  // Kiểm tra các trường bắt buộc
-  if (!collectionId || !description || !name || !imageUrl || !type) {
-    return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo NFT.' });
-  }
-
-  try {
-    // Kiểm tra nếu `req.user.walletAddress` tồn tại
-    if (!req.user || !req.user.walletAddress) {
-      return res.status(400).json({
-        message: 'Không tìm thấy địa chỉ ví người dùng (destinationUserReferenceId).',
-      });
+    // Validate required fields
+    if (!collectionId || !description || !name || !imageUrl) {
+      return res.status(400).json({ message: 'Thiếu thông tin cần thiết để tạo NFT.' });
     }
 
-    // Chuẩn bị payload gửi lên GameShift API
-    const nftData = {
-      details: {
-        attributes: [
-          {
-            traitType: 'type',
-            value: type, // Thêm type vào NFT
-          },
-        ],
+    try {
+      // Call GameShift service to create NFT
+      const gameShiftResponse = await gameShiftService.createNFT({
         collectionId,
         description,
         name,
         imageUrl,
-      },
-      destinationUserReferenceId: req.user.walletAddress, // Địa chỉ ví của người dùng
-    };
+        walletAddress
+      });
 
-    console.log('--- Payload gửi lên GameShift ---');
-    console.log(JSON.stringify(nftData, null, 2));
+      // Save NFT ID to MongoDB
+      const newNFT = new NFT({
+        gameShiftNFTId: gameShiftResponse.id,
+      });
+      await newNFT.save();
 
-    // Gọi GameShift API để tạo NFT
-    const gameShiftResponse = await gameShiftService.createNFT(nftData);
-
-    if (!gameShiftResponse || !gameShiftResponse.id) {
-      return res.status(500).json({ message: 'Không nhận được ID hợp lệ từ GameShift.' });
+      res.status(201).json({
+        message: 'NFT đã được tạo thành công!',
+        data: gameShiftResponse
+      });
+    } catch (error) {
+      console.error('--- Lỗi khi tạo NFT ---', error.message);
+      res.status(500).json({ message: 'Lỗi khi tạo NFT.', error: error.message });
     }
-
-    // Lưu ID NFT vào MongoDB
-    const newNFT = new NFT({
-      gameShiftNFTId: gameShiftResponse.id,
-    });
-    await newNFT.save();
-
-    res.status(201).json({
-      message: 'NFT được tạo thành công!',
-      nftId: newNFT.gameShiftNFTId,
-    });
-  } catch (error) {
-    console.error('--- Lỗi khi tạo NFT ---', error.message);
-    res.status(500).json({ message: 'Lỗi khi tạo NFT.', error: error.message });
-  }
-};
+  };
 
 exports.getAllNFTs = async (req, res) => {
   try {
@@ -343,7 +319,7 @@ exports.getNFTsByCollection = async (req, res) => {
     const nfts = await gameShiftService.getNFTsByCollection(collectionId);
 
     res.status(200).json({
-      message: "Danh sách NFT trong bộ sưu tập",
+      message: "Danh sách NFT trong b��� sưu tập",
       data: nfts,
     });
   } catch (error) {
