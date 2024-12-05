@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { fetchMarketNFTs, buyNFT } from "../services/api";
 import "./styles/MarketNFT.css";
+import { useUserContext } from "../context/UserContext";
 
 const MarketNFT = () => {
+  const { user } = useUserContext();
   const [certificates, setCertificates] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,11 +27,17 @@ const MarketNFT = () => {
           console.log(`NFT ${index + 1}:`, nft);
         });
 
+        // Get the current user's wallet address
+        const currentUserWalletAddress = user?.walletAddress;
+
+        // Filter out NFTs that belong to the current user
+        const filteredData = data.filter((nft) => nft.owner?.address !== currentUserWalletAddress);
+
         // Classify NFTs into categories
-        const certificateNFTs = data.filter((nft) =>
+        const certificateNFTs = filteredData.filter((nft) =>
           nft.attributes?.some((attr) => attr.value === "certificate")
         );
-        const medicineNFTs = data.filter((nft) =>
+        const medicineNFTs = filteredData.filter((nft) =>
           nft.attributes?.some((attr) => attr.value === "medicine")
         );
 
@@ -44,7 +52,7 @@ const MarketNFT = () => {
     };
 
     loadMarketNFTs();
-  }, []);
+  }, [user]);
 
   // Open modal for confirmation
   const openModal = (nft) => {
@@ -108,7 +116,7 @@ const MarketNFT = () => {
                     <h4>{nft.name || "Không có tên"}</h4>
                     <p>{nft.description || "Không có mô tả"}</p>
                     <p>
-                      Giá:{" "}
+                      Giá: {" "}
                       {nft.price && nft.price.naturalAmount
                         ? `${parseFloat(nft.price.naturalAmount).toFixed(2)} ${nft.price.currencyId || "SOL"}`
                         : "Không có giá"}
@@ -141,7 +149,7 @@ const MarketNFT = () => {
                     <h4>{nft.name || "Không có tên"}</h4>
                     <p>{nft.description || "Không có mô tả"}</p>
                     <p>
-                      Giá:{" "}
+                      Giá: {" "}
                       {nft.price && nft.price.naturalAmount
                         ? `${parseFloat(nft.price.naturalAmount).toFixed(2)} ${nft.price.currencyId || "SOL"}`
                         : "Không có giá"}
@@ -177,5 +185,4 @@ const MarketNFT = () => {
     </div>
   );
 };
-
 export default MarketNFT;

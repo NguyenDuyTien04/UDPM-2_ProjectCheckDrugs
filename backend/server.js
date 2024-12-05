@@ -11,7 +11,7 @@ const collectionRoutes = require('./routes/collectionRoutes'); // Đảm bảo t
 const nftRoutes = require('./routes/nftRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const Transaction = require("./models/Transaction");
-
+const paymentsRoutes = require('./routes/paymentsRoutes');
 
 
 // Kết nối MongoDB
@@ -58,6 +58,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/collections', collectionRoutes); // Import đúng đường dẫn
 app.use('/api/nft', nftRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 // Kiểm tra sức khỏe của server
 app.get('/health', (req, res) => {

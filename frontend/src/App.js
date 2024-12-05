@@ -12,6 +12,7 @@ import Collection from "./pages/Collection";
 import TransactionStatusChart from './pages/TransactionStatusChart';
 import CreateNFT from "./pages/CreateNFT";
 import NftList from "./pages/UserNFTs";
+import PaymentsList from "./pages/PaymentsList"; // Import PaymentsList
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/market" element={<MarketNFT />} />
         <Route path="/purchase-history" element={<PurchaseHistory />} />
         <Route path="/TransactionStatusChart" element={<TransactionStatusChart />} />
+        <Route path="/payments" element={<PaymentsList />} />
       </Routes>
     </UserProvider>
   );

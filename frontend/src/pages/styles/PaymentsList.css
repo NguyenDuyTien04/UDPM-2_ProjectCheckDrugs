@@ -1,0 +1,43 @@
+.payments-list {
+  background-color: #333;
+  color: #ffcc00;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  margin: 20px auto;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
+
+.payments-list h2 {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.payments-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.payment-item {
+  background-color: #fff;
+  color: #333;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.payment-item p {
+  margin: 5px 0;
+}
+
+.payment-item strong {
+  color: #ff9900;
+}
+
+.payment-item:hover {
+  background-color: #f9f9f9;
+}
+

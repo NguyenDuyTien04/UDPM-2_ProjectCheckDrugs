@@ -26,7 +26,7 @@ function Navbar() {
           <Link to="/market">Chợ NFT</Link>
         </li>
         <li>
-          <Link to="/purchase-history">Lịch sử giao dịch</Link>
+          <Link to="/payments">Lịch sử giao dịch</Link>
         </li>
         <li>
           <Link to="/TransactionStatusChart">Thống kê</Link>
